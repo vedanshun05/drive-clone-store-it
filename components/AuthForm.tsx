@@ -77,7 +77,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
                   <Input
                     id="fullName"
-                    placeholder="Enter your full name"
+                    placeholder=" Enter your full name"
                     className="shad-input"
                     aria-invalid={fieldState.invalid}
                     {...field}
@@ -100,7 +100,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
                 <Input
                   id="email"
-                  placeholder="Enter your email"
+                  placeholder=" Enter your email"
                   className="shad-input"
                   aria-invalid={fieldState.invalid}
                   {...field}
