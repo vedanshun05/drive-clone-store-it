@@ -1,5 +1,5 @@
 const FileUploader = () => {
-  return <div></div>;
+  return <div>FileUploader</div>;
 };
 
 export default FileUploader;
