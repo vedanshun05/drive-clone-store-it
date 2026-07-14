@@ -22,16 +22,29 @@ export const uploadFile = async ({
   const { storage, tablesDB } = await createAdminClient();
 
   try {
-    const inputFile = InputFile.fromBuffer(
-      Buffer.from(await file.arrayBuffer()),
-      file.name,
-    );
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    const bucketFile = await storage.createFile(
-      appwriteConfig.bucketId,
-      ID.unique(),
-      inputFile,
-    );
+    // Appwrite Cloud's CDN (Varnish) intermittently returns a "503 backend
+    // write error" on larger uploads such as videos. Retry the storage write a
+    // few times with backoff before giving up. A fresh InputFile is built per
+    // attempt so the buffer is re-read cleanly on retry.
+    let bucketFile: Models.File | undefined;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        bucketFile = await storage.createFile(
+          appwriteConfig.bucketId,
+          ID.unique(),
+          InputFile.fromBuffer(buffer, file.name),
+        );
+        break;
+      } catch (error) {
+        const code = (error as { code?: number }).code;
+        if (code !== 503 || attempt === 3) throw error;
+        await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+      }
+    }
+
+    if (!bucketFile) throw new Error("Failed to upload file to storage");
 
     const fileDocument = {
       type: getFileType(bucketFile.name).type,
@@ -76,6 +89,9 @@ const createQueries = (
       Query.equal("owner", [currentUser.$id]),
       Query.contains("users", [currentUser.email]),
     ]),
+    // TablesDB returns relationship columns as bare IDs by default; select
+    // nested owner fields so `file.owner` comes back as the populated user row.
+    Query.select(["*", "owner.*"]),
   ];
 
   if (types.length > 0) queries.push(Query.equal("type", types));

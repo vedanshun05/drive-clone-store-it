@@ -24,7 +24,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
           width={160}
           height={50}
           className="hidden h-auto lg:block"
-          style={{ height: 'auto' }}
+          style={{ width: 'auto', height: 'auto' }}
         />
 
         <Image
@@ -70,7 +70,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
         height={418}
         className="w-full"
         loading="eager"
-        style={{ height: 'auto' }}
+        style={{ width: '100%', height: 'auto' }}
       />
 
       <div className="sidebar-user-info">

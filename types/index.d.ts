@@ -59,14 +59,6 @@ declare interface SidebarProps {
   email: string;
 }
 
-declare interface ThumbnailProps {
-  type: string;
-  extension: string;
-  url: string;
-  className?: string;
-  imageClassName?: string;
-}
-
 declare interface AppwriteFile {
   $id: string;
   $sequence: string;
@@ -80,7 +72,13 @@ declare interface AppwriteFile {
   url: string;
   extension: string;
   size: number;
-  owner: string;
+  owner: {
+    $id: string;
+    fullName: string;
+    email: string;
+    avatar: string;
+    accountId: string;
+  };
   accountId: string;
   users: string[];
   bucketFileId: string;

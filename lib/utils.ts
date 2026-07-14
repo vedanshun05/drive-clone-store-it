@@ -44,7 +44,7 @@ export const convertFileSize = (sizeInBytes: number, digits?: number) => {
     return sizeInMB.toFixed(digits || 1) + " MB";
   } else {
     const sizeInGB = sizeInBytes / (1024 * 1024 * 1024);
-    return sizeInGB.toFixed(digits || 2) + " GB";
+    return sizeInGB.toFixed(digits || 1) + " GB";
   }
 };
 
@@ -57,7 +57,7 @@ export const calculateAngle = (sizeInBytes: number) => {
 export const calculatePercentage = (sizeInBytes: number) => {
   const totalSizeInBytes = 2 * 1024 * 1024 * 1024;
   const percentage = (sizeInBytes / totalSizeInBytes) * 100;
-  return Number(percentage.toFixed(1));
+  return Number(percentage.toFixed(2));
 };
 
 export const formatDateTime = (isoString: string | null | undefined) => {

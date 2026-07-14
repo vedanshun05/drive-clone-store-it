@@ -6,16 +6,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import React, { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Separator } from "@radix-ui/react-separator";
+import { navItems } from "@/constants";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import FileUploader from "@/components/FileUploader";
-import { navItems } from "@/constants";
 import { signOutUser } from "@/lib/actions/user.actions";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 interface Props {
   $id: string;
@@ -43,19 +43,19 @@ const MobileNavigation = ({
         width={120}
         height={52}
         className="h-auto"
-        style={{ height: 'auto' }}
+        style={{ width: "auto", height: "auto" }}
       />
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>
           <Image
             src="/assets/icons/menu.svg"
-            alt="Menu"
+            alt="Search"
             width={30}
             height={30}
           />
         </SheetTrigger>
-        <SheetContent className="h-screen px-3 shad-sheet">
+        <SheetContent className="shad-sheet h-screen px-3">
           <SheetTitle>
             <div className="header-user">
               <Image
@@ -111,7 +111,7 @@ const MobileNavigation = ({
             >
               <Image
                 src="/assets/icons/logout.svg"
-                alt="logout"
+                alt="logo"
                 width={24}
                 height={24}
               />

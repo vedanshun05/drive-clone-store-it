@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import AppwritePing from "@/components/AppwritePing";
-import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -26,8 +24,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-poppins", "antialiased", poppins.variable, "font-sans", geist.variable)}>
       <body className="flex min-h-full flex-col">
-        <Toaster />
-        <AppwritePing />
         {children}
       </body>
     </html>

@@ -107,7 +107,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                       height={26}
                       alt="Loader"
                       unoptimized
-                      style={{ height: 'auto' }}
+                      style={{ height: "auto" }}
                     />
                   </div>
                 </div>
