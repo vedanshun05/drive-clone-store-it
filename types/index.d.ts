@@ -18,7 +18,7 @@ declare interface UploadFileProps {
   path: string;
 }
 declare interface GetFilesProps {
-  types: FileType[];
+  types?: FileType[];
   searchText?: string;
   sort?: string;
   limit?: number;
