@@ -2,7 +2,7 @@ import Link from "next/link";
 import Thumbnail from "@/components/Thumbnail";
 import { convertFileSize } from "@/lib/utils";
 import FormattedDateTime from "@/components/FormattedDateTime";
-import ActionDropdown from "./ActionDropdown";
+import ActionDropdown from "@/components/ActionDropdown";
 
 const Card = ({ file }: { file: AppwriteFile }) => {
   return (
