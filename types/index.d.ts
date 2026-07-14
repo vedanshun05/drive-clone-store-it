@@ -67,8 +67,27 @@ declare interface ThumbnailProps {
   imageClassName?: string;
 }
 
+declare interface AppwriteFile {
+  $id: string;
+  $sequence: string;
+  $tableId: string;
+  $databaseId: string;
+  $createdAt: string;
+  $updatedAt: string;
+  $permissions: string[];
+  type: FileType;
+  name: string;
+  url: string;
+  extension: string;
+  size: number;
+  owner: string;
+  accountId: string;
+  users: string[];
+  bucketFileId: string;
+}
+
 declare interface ShareInputProps {
-  file: Models.Document;
+  file: AppwriteFile;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: (email: string) => void;
 }

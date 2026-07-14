@@ -1,7 +1,7 @@
+import Card from "@/components/Card";
 import Sort from "@/components/Sort";
 import { getFiles } from "@/lib/actions/file.actions";
 import { getFileTypesParams, convertFileSize } from "@/lib/utils";
-import { Models } from "node-appwrite";
 
 const Page = async ({ params, searchParams }: SearchParamProps) => {
   const type = ((await params)?.type as string) || "";
@@ -12,7 +12,7 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
   const files = await getFiles({ types, searchText, sort });
 
   const totalSize = files?.rows?.reduce(
-    (acc: number, file: Models.Document) => acc + file.size,
+    (acc: number, file: AppwriteFile) => acc + file.size,
     0,
   );
 
@@ -36,8 +36,8 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
 
       {files?.total > 0 ? (
         <section className="file-list">
-          {files.rows.map((file: Models.Document) => (
-            <p key={file.$id}>{file.name}</p>
+          {files.rows.map((file: AppwriteFile) => (
+            <Card key={file.$id} file={file} />
           ))}
         </section>
       ) : (

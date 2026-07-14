@@ -21,6 +21,11 @@ const eslintConfig = defineConfig([
       },
     },
   },
+  {
+    rules: {
+      "no-undef": "off",
+    },
+  },
   prettier,
   globalIgnores([
     // Default ignores of eslint-config-next:

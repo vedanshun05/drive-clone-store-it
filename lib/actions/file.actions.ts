@@ -172,15 +172,13 @@ export const deleteFile = async ({
   const { storage, tablesDB } = await createAdminClient();
 
   try {
-    const deletedFile = await tablesDB.deleteRow({
+    await tablesDB.deleteRow({
       databaseId: appwriteConfig.databaseId,
       tableId: appwriteConfig.filesTableId,
       rowId: fileId,
     });
 
-    if (deletedFile) {
-      await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
-    }
+    await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
 
     revalidatePath(path);
     return parseStringify({ status: "success" });
