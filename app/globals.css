@@ -98,23 +98,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-  }
-
-  .remove-scrollbar::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-    border-radius: 0px;
-  }
-  .remove-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .remove-scrollbar::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 0px;
-  }
-  .remove-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: transparent;
+    @apply bg-white text-dark-200 min-h-screen;
   }
 
   .recharts-responsive-container {
@@ -180,6 +164,41 @@
   }
 }
 
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 3px;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #fa7275;
+  }
+}
+@utility remove-scrollbar {
+  &::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    border-radius: 0px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 0px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+  }
+}
+
 @utility center {
   @apply flex h-screen items-center justify-center bg-amber-100;
 }
@@ -218,302 +237,308 @@
   @apply text-[10px] leading-[14px] font-normal;
 }
 
+@utility button {
+  @apply text-[14px] leading-[20px] font-medium;
+}
+@utility container {
+  @apply mx-auto max-w-7xl px-5;
+}
 @utility primary-btn {
-  @apply bg-brand hover:bg-brand-100 transition-all rounded-full text-[14px] leading-[20px] font-medium;
+  @apply bg-brand! hover:bg-brand-100! transition-all rounded-full! button!;
 }
 @utility flex-center {
   @apply flex items-center justify-center;
 }
 
 @utility shad-no-focus {
-  @apply outline-none ring-offset-transparent focus:ring-transparent focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0;
+  @apply outline-none! ring-offset-transparent! focus:ring-transparent! focus:ring-offset-0! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-transparent! focus-visible:ring-offset-0!;
 }
 @utility shad-input {
-  @apply border-none! shadow-none! p-0! text-[14px] leading-[20px] font-normal outline-none ring-offset-transparent focus:ring-transparent focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0 placeholder:text-light-200;
+  @apply border-none! shadow-none! p-0! shad-no-focus placeholder:text-light-200! body-2!;
 }
 
 @utility shad-form-item {
   @apply flex h-[78px] flex-col justify-center rounded-xl border border-light-300 px-4 shadow-drop-1;
 }
 @utility shad-form-label {
-  @apply text-light-100 pt-2 text-[14px] leading-[20px] font-normal w-full;
+  @apply text-light-100! pt-2! body-2! w-full!;
 }
 @utility shad-form-message {
-  @apply text-red text-[14px] leading-[20px] font-normal ml-4;
+  @apply text-red! body-2! ml-4!;
 }
 @utility shad-alert-dialog {
-  @apply space-y-4 max-w-[95%] sm:w-fit rounded-xl md:rounded-[30px] px-4 md:px-8 py-10 bg-white outline-none;
+  @apply space-y-4! max-w-[95%]! sm:w-fit! rounded-xl! md:rounded-[30px]! px-4! md:px-8! py-10! bg-white! outline-none!;
 }
 @utility shad-submit-btn {
-  @apply bg-brand! text-[14px] leading-[20px] font-medium hover:bg-brand-100! transition-all rounded-full;
+  @apply bg-brand! button! hover:bg-brand-100! transition-all! rounded-full!;
 }
 @utility shad-otp {
-  @apply w-full flex gap-1 sm:gap-2 justify-between;
+  @apply w-full! flex! gap-1! sm:gap-2! justify-between!;
 }
 @utility shad-otp-slot {
-  @apply text-[40px] font-medium rounded-xl ring-brand shadow-drop-1 text-brand-100 justify-center flex border-2 border-light-300 size-12 md:size-16 gap-5;
+  @apply text-[40px]! font-medium! rounded-xl! ring-brand! shadow-drop-1! text-brand-100! justify-center! flex! border-2! border-light-300! size-12! md:size-16! gap-5!;
 }
 
 @utility shad-sheet {
-  @apply pt-0;
+  @apply pt-0!;
 }
 .shad-sheet button,
 .shad-dialog button {
-  @apply focus:ring-0 focus:ring-offset-0 focus-visible:border-none outline-none focus-visible:outline-none focus-visible:ring-transparent focus-visible:ring-offset-0;
+  @apply focus:ring-0! focus:ring-offset-0! focus-visible:border-none! outline-none! focus-visible:outline-none! focus-visible:ring-transparent! focus-visible:ring-offset-0!;
 }
 @utility shad-dropdown-item {
-  @apply cursor-pointer;
+  @apply cursor-pointer!;
 }
 @utility shad-dialog {
-  @apply rounded-[26px] w-[90%] max-w-[400px] px-6 py-8;
+  @apply rounded-[26px]! w-[90%]! max-w-[400px]! px-6! py-8!;
 }
 @utility shad-chart-title {
-  @apply text-white;
+  @apply text-white!;
 }
 @utility shad-select-item {
-  @apply cursor-pointer;
+  @apply cursor-pointer!;
 }
 
 @utility nav-icon {
-  @apply w-6 filter invert opacity-25;
+  @apply w-6 filter invert! opacity-25!;
 }
 @utility nav-icon-active {
-  @apply invert-0 opacity-100;
+  @apply invert-0! opacity-100!;
 }
 
 @utility main-content {
-  @apply h-full flex-1 overflow-auto bg-light-400 px-5 py-7 sm:mr-7 sm:rounded-[30px] md:mb-7 md:px-9 md:py-10;
+  @apply remove-scrollbar h-full flex-1 overflow-auto bg-light-400 px-5 py-7 sm:mr-7 sm:rounded-[30px] md:mb-7 md:px-9 md:py-10!;
 }
 
 @utility dashboard-container {
-  @apply mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 xl:gap-10;
+  @apply mx-auto! grid! max-w-7xl! grid-cols-1! gap-6! md:grid-cols-2! xl:gap-10!;
 }
 @utility dashboard-summary-list {
-  @apply mt-6 grid grid-cols-1 gap-4 xl:mt-10 xl:grid-cols-2 xl:gap-9;
+  @apply mt-6! grid! grid-cols-1! gap-4! xl:mt-10! xl:grid-cols-2! xl:gap-9!;
 }
 @utility dashboard-summary-card {
-  @apply relative mt-6 rounded-[20px] bg-white p-5 transition-all hover:scale-105;
+  @apply relative! mt-6! rounded-[20px]! bg-white! p-5! transition-all! hover:scale-105!;
 }
 @utility summary-type-icon {
-  @apply absolute -left-3 top-[-25px] z-10 w-[190px] object-contain;
+  @apply absolute! -left-3! top-[-25px]! z-10! w-[190px]! object-contain!;
 }
 @utility summary-type-size {
-  @apply text-[18px] leading-[20px] font-medium relative z-20 w-full text-right;
+  @apply h4! relative! z-20! w-full! text-right!;
 }
 @utility summary-type-title {
-  @apply text-[16px] leading-[24px] font-semibold relative z-20 text-center;
+  @apply h5! relative! z-20! text-center!;
 }
 @utility dashboard-recent-files {
-  @apply h-full rounded-[20px] bg-white p-5 xl:p-8;
+  @apply h-full! rounded-[20px]! xl:h-[654px]! custom-scrollbar! overflow-auto! bg-white! p-5! xl:p-7!;
 }
 @utility recent-file-details {
-  @apply flex w-full flex-col xl:flex-row xl:justify-between;
+  @apply flex! w-full! justify-between! items-center!;
 }
 @utility recent-file-name {
-  @apply text-[14px] leading-[20px] font-semibold line-clamp-1 w-full text-light-100 sm:max-w-[200px] lg:max-w-[250px];
+  @apply subtitle-2! line-clamp-1! w-full! text-light-100! sm:max-w-[200px]! lg:max-w-[250px]!;
 }
 @utility recent-file-date {
-  @apply text-[14px] leading-[20px] font-normal text-light-100/80;
+  @apply body-2! text-light-100/80!;
 }
 @utility empty-list {
-  @apply text-[16px] leading-[24px] font-normal mt-10 text-center text-light-200;
+  @apply body-1! mt-10! text-center! text-light-200!;
 }
 
 @utility page-container {
-  @apply mx-auto flex w-full max-w-7xl flex-col items-center gap-8;
+  @apply mx-auto! flex! w-full! max-w-7xl! flex-col! items-center! gap-8!;
 }
 @utility total-size-section {
-  @apply flex mt-2 flex-col justify-between sm:flex-row sm:items-center;
+  @apply flex! mt-2! flex-col! justify-between! sm:flex-row! sm:items-center!;
 }
 @utility file-list {
-  @apply grid w-full gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  @apply grid! w-full! gap-6! sm:grid-cols-2! lg:grid-cols-3! xl:grid-cols-4!;
 }
 @utility sort-container {
-  @apply mt-5 flex items-center sm:mt-0 sm:gap-3;
+  @apply mt-5! flex! items-center! sm:mt-0! sm:gap-3!;
 }
 
 @utility rename-input-field {
-  @apply text-[14px] leading-[20px] font-normal outline-none ring-offset-transparent focus:ring-transparent focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0 h-[52px] w-full rounded-full border px-4 shadow-drop-1;
+  @apply body-2! shad-no-focus h-[52px]! w-full! rounded-full! border! px-4! shadow-drop-1!;
 }
 @utility delete-confirmation {
-  @apply text-center text-light-100;
+  @apply text-center! text-light-100!;
 }
 @utility delete-file-name {
-  @apply font-medium text-brand-100;
+  @apply font-medium! text-brand-100!;
 }
 @utility modal-cancel-button {
-  @apply h-[52px] flex-1 rounded-full bg-white text-light-100 hover:bg-transparent;
+  @apply h-[52px]! flex-1! rounded-full! bg-white! text-light-100! hover:bg-transparent!;
 }
 @utility modal-submit-button {
-  @apply bg-brand hover:bg-brand-100 transition-all rounded-full text-[14px] leading-[20px] font-medium h-[52px] w-full flex-1;
+  @apply primary-btn mx-0! h-[52px]! w-full! flex-1!;
 }
 
 @utility file-details-thumbnail {
-  @apply mb-1 flex items-center gap-3 rounded-xl border border-light-200/40 bg-light-400/50 p-3;
+  @apply mb-1! flex! items-center! gap-3! rounded-xl! border! border-light-200/40! bg-light-400/50! p-3!;
 }
 @utility file-details-label {
-  @apply text-[14px] leading-[20px] font-normal w-[30%] text-light-100;
+  @apply body-2! w-[30%]! text-light-100!;
 }
 @utility file-details-value {
-  @apply text-[14px] leading-[20px] font-semibold flex-1;
+  @apply subtitle-2! flex-1!;
 }
 
 @utility share-wrapper {
-  @apply mt-2 space-y-2;
+  @apply mt-2! space-y-2!;
 }
 @utility share-input-field {
-  @apply text-[14px] leading-[20px] font-normal outline-none ring-offset-transparent focus:ring-transparent focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0 h-[52px] w-full rounded-full border px-4 shadow-drop-1;
+  @apply body-2! shad-no-focus h-[52px]! w-full! rounded-full! border! px-4! shadow-drop-1!;
 }
 @utility share-remove-user {
-  @apply rounded-full bg-transparent text-light-100 shadow-none hover:bg-transparent;
+  @apply rounded-full! bg-transparent! text-light-100! shadow-none! hover:bg-transparent!;
 }
 @utility remove-icon {
-  @apply aspect-square rounded-full;
+  @apply aspect-square! rounded-full!;
 }
 
 @utility auth-form {
-  @apply flex max-h-[800px] w-full max-w-[580px] flex-col justify-center space-y-6 transition-all lg:h-full lg:space-y-8;
+  @apply flex! max-h-[800px]! w-full! max-w-[580px]! flex-col! justify-center! space-y-6! transition-all! lg:h-full! lg:space-y-8!;
 }
 @utility form-title {
-  @apply text-[34px] leading-[42px] font-bold text-center text-light-100 md:text-left;
+  @apply h1! text-center! text-light-100! md:text-left!;
 }
 @utility form-submit-button {
-  @apply bg-brand! hover:bg-brand-100! transition-all rounded-full text-[14px] leading-[20px] font-medium h-[66px];
+  @apply primary-btn h-[66px]!;
 }
 @utility error-message {
-  @apply text-[14px] leading-[20px] font-normal mx-auto w-fit rounded-xl bg-error/5 px-8 py-4 text-center text-error;
+  @apply body-2! mx-auto! w-fit! rounded-xl! bg-error/5! px-8! py-4! text-center! text-error!;
 }
 
 @utility file-card {
-  @apply flex cursor-pointer flex-col gap-6 rounded-[18px] bg-white p-5 shadow-sm transition-all hover:shadow-drop-3;
+  @apply flex! cursor-pointer! flex-col! gap-6! rounded-[18px]! bg-white! p-5! shadow-sm! transition-all! hover:shadow-drop-3!;
 }
 @utility file-card-details {
-  @apply flex flex-col gap-2 text-light-100;
+  @apply flex! flex-col! gap-2! text-light-100!;
 }
 
 @utility chart {
-  @apply flex items-center rounded-[20px] bg-brand p-5 text-white md:flex-col xl:flex-row;
+  @apply flex! items-center! rounded-[20px]! bg-brand! p-2! text-white! md:flex-col! xl:flex-row!;
 }
 @utility chart-container {
-  @apply mx-auto aspect-square w-[180px] text-white xl:w-[250px];
+  @apply mx-auto! aspect-square! w-[180px]! text-white! xl:w-[200px]!;
 }
 @utility polar-grid {
-  @apply first:fill-white/20 last:fill-brand;
+  @apply first:fill-white/20! last:fill-brand!;
 }
 @utility chart-details {
-  @apply flex-1 items-start px-3 py-0 sm:px-5 lg:p-3 xl:pr-5;
+  @apply flex-1! items-start! px-3! py-0! sm:px-5! lg:p-3! xl:pr-5!;
 }
 @utility chart-total-percentage {
-  @apply fill-white text-4xl font-bold;
+  @apply fill-white! text-4xl! font-bold!;
 }
 @utility chart-title {
-  @apply text-[20px] leading-[28px] font-semibold font-bold md:text-center lg:text-left;
+  @apply h3! font-bold! md:text-center! lg:text-left!;
 }
 @utility chart-description {
-  @apply text-[16px] leading-[24px] font-medium mt-2 w-full text-white/70 md:text-center lg:text-left;
+  @apply subtitle-1! mt-2! w-full! text-white/70! md:text-center! lg:text-left!;
 }
 
 @utility uploader-button {
-  @apply bg-brand hover:bg-brand-100 transition-all rounded-full text-[14px] leading-[20px] font-medium h-[52px] gap-2 px-10 shadow-drop-1;
+  @apply bg-brand! hover:bg-brand-100! transition-all! rounded-full! button! h-[52px]! gap-2! px-10! shadow-drop-1!;
 }
 @utility uploader-preview-list {
-  @apply fixed bottom-10 right-10 z-50 flex size-full h-fit max-w-[480px] flex-col gap-3 rounded-[20px] bg-white p-7 shadow-drop-3;
+  @apply fixed! bottom-10! right-10! z-50! flex! size-full! h-fit! max-w-[480px]! flex-col! gap-3! rounded-[20px]! bg-white! p-7! shadow-drop-3!;
 }
 @utility uploader-preview-item {
-  @apply flex items-center justify-between gap-3 rounded-xl p-3 shadow-drop-3;
+  @apply flex! items-center! justify-between! gap-3! rounded-xl! p-3! shadow-drop-3!;
 }
 @utility preview-item-name {
-  @apply text-[14px] leading-[20px] font-semibold mb-2 line-clamp-1 max-w-[300px];
+  @apply subtitle-2! mb-2! line-clamp-1! max-w-[300px]!;
 }
 
 @utility error-toast {
-  @apply bg-red rounded-[10px];
+  @apply bg-red! rounded-[10px]!;
 }
 
 @utility header {
-  @apply hidden items-center justify-between gap-5 p-5 sm:flex lg:py-7 xl:gap-10;
+  @apply hidden! items-center! justify-between! gap-5! p-5! sm:flex! lg:py-7! xl:gap-10!;
 }
 @utility header-wrapper {
-  @apply flex items-center justify-center min-w-fit gap-4;
+  @apply flex! items-center! justify-center! min-w-fit! gap-4!;
 }
 @utility sign-out-button {
-  @apply flex items-center justify-center h-[52px] min-w-[54px] rounded-full bg-brand/10 p-0 text-brand shadow-none transition-all hover:bg-brand/20;
+  @apply flex! items-center! justify-center! h-[52px]! min-w-[54px]! rounded-full! bg-brand/10! p-0! text-brand! shadow-none! transition-all! hover:bg-brand/20!;
 }
 
 @utility mobile-header {
-  @apply flex h-[60px] justify-between px-5 sm:hidden;
+  @apply flex! h-[60px]! justify-between! px-5! sm:hidden!;
 }
 @utility header-user {
-  @apply my-3 flex items-center gap-2 rounded-full p-1 text-light-100 sm:justify-center sm:bg-brand/10 lg:justify-start lg:p-3;
+  @apply my-3! flex! items-center! gap-2! rounded-full! p-1! text-light-100! sm:justify-center! sm:bg-brand/10! lg:justify-start! lg:p-3!;
 }
 @utility header-user-avatar {
-  @apply aspect-square w-10 rounded-full object-cover;
+  @apply aspect-square! w-10! rounded-full! object-cover!;
 }
 @utility mobile-nav {
-  @apply text-[16px] leading-[24px] font-semibold flex-1 gap-1 text-brand;
+  @apply h5! flex-1! gap-1! text-brand!;
 }
 @utility mobile-nav-list {
-  @apply flex flex-1 flex-col gap-4;
+  @apply flex! flex-1! flex-col! gap-4!;
 }
 @utility mobile-nav-item {
-  @apply flex text-light-100 gap-4 w-full justify-start items-center text-[16px] leading-[24px] font-semibold px-6 h-[52px] rounded-full;
+  @apply flex! text-light-100! gap-4! w-full! justify-start! items-center! h5! px-6! h-[52px]! rounded-full!;
 }
 @utility mobile-sign-out-button {
-  @apply text-[16px] leading-[24px] font-semibold flex h-[52px] w-full items-center gap-4 rounded-full bg-brand/10 px-6 text-brand shadow-none transition-all hover:bg-brand/20;
+  @apply h5! flex! h-[52px]! w-full! items-center! gap-4! rounded-full! bg-brand/10! px-6! text-brand! shadow-none! transition-all! hover:bg-brand/20!;
 }
 
 @utility otp-close-button {
-  @apply absolute -right-1 -top-7 cursor-pointer sm:-right-2 sm:-top-4;
+  @apply absolute! -right-1! -top-7! cursor-pointer! sm:-right-2! sm:-top-4!;
 }
 
 @utility search {
-  @apply relative w-full md:max-w-[480px];
+  @apply relative! w-full! md:max-w-[480px]!;
 }
 @utility search-input-wrapper {
-  @apply flex h-[52px] flex-1 items-center gap-3 rounded-full px-4 shadow-drop-3;
+  @apply flex! h-[52px]! flex-1! items-center! gap-3! rounded-full! px-4! shadow-drop-3!;
 }
 @utility search-input {
-  @apply text-[14px] leading-[20px] font-normal outline-none ring-offset-transparent focus:ring-transparent focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0 w-full border-none p-0 shadow-none placeholder:text-light-200;
+  @apply body-2! shad-no-focus w-full! border-none! p-0! shadow-none! placeholder:text-light-200!;
 }
 @utility search-result {
-  @apply absolute left-0 top-16 z-50 flex w-full flex-col gap-3 rounded-[20px] bg-white p-4;
+  @apply absolute! left-0! top-16! z-50! flex! w-full! flex-col! gap-3! rounded-[20px]! bg-white! p-4!;
 }
 @utility empty-result {
-  @apply text-[14px] leading-[20px] font-normal text-center text-light-100;
+  @apply body-2! text-center! text-light-100!;
 }
 
 @utility sidebar {
-  @apply hidden h-screen w-[90px] flex-col overflow-auto px-5 py-7 sm:flex lg:w-[280px] xl:w-[325px];
+  @apply remove-scrollbar hidden! h-screen! w-[90px]! flex-col! overflow-auto! px-5! py-7! sm:flex! lg:w-[280px]! xl:w-[325px]!;
 }
 @utility sidebar-nav {
-  @apply text-[16px] leading-[24px] font-semibold mt-9 flex-1 gap-1 text-brand;
+  @apply h5! mt-9! flex-1! gap-1! text-brand!;
 }
 @utility sidebar-nav-item {
-  @apply flex text-light-100 gap-4 rounded-xl lg:w-full justify-center lg:justify-start items-center text-[16px] leading-[24px] font-semibold lg:px-[30px] h-[52px] lg:rounded-full;
+  @apply flex! text-light-100! gap-4! rounded-xl! lg:w-full! justify-center! lg:justify-start! items-center! h5! lg:px-[30px]! h-[52px]! lg:rounded-full!;
 }
 @utility sidebar-user-info {
-  @apply mt-4 flex items-center justify-center gap-2 rounded-full bg-brand/10 p-1 text-light-100 lg:justify-start lg:p-3;
+  @apply mt-4! flex! items-center! justify-center! gap-2! rounded-full! bg-brand/10! p-1! text-light-100! lg:justify-start! lg:p-3!;
 }
 @utility sidebar-user-avatar {
-  @apply aspect-square w-10 rounded-full object-cover;
+  @apply aspect-square! w-10! rounded-full! object-cover!;
 }
 
 @utility shad-active {
-  @apply bg-brand text-white shadow-drop-2;
+  @apply bg-brand! text-white! shadow-drop-2!;
 }
 
 @utility sort-select {
-  @apply outline-none ring-offset-transparent focus:ring-transparent focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0 h-11 w-full rounded-[8px] border-transparent bg-white shadow-sm sm:w-[210px];
+  @apply shad-no-focus h-11! w-full! rounded-[8px]! border-transparent! bg-white! shadow-sm! sm:w-[210px]!;
 }
 @utility sort-select-content {
-  @apply shadow-drop-3;
+  @apply shadow-drop-3!;
 }
 
 @utility thumbnail {
-  @apply flex items-center justify-center size-[50px] min-w-[50px] overflow-hidden rounded-full bg-brand/10;
+  @apply flex! items-center! justify-center! size-[50px]! min-w-[50px]! overflow-hidden! rounded-full! bg-brand/10!;
 }
 @utility thumbnail-image {
-  @apply size-full object-cover object-center;
+  @apply size-full! object-cover! object-center!;
 }
 
 @layer base {

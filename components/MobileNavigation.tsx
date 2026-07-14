@@ -18,12 +18,20 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 interface Props {
+  $id: string;
+  accountId: string;
   fullName: string;
   avatar: string;
   email: string;
 }
 
-const MobileNavigation = ({ fullName, avatar, email }: Props) => {
+const MobileNavigation = ({
+  $id: ownerId,
+  accountId,
+  fullName,
+  avatar,
+  email,
+}: Props) => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -35,6 +43,7 @@ const MobileNavigation = ({ fullName, avatar, email }: Props) => {
         width={120}
         height={52}
         className="h-auto"
+        style={{ height: 'auto' }}
       />
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -94,7 +103,7 @@ const MobileNavigation = ({ fullName, avatar, email }: Props) => {
           <Separator className="my-5 bg-light-200/20" />
 
           <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader />
+            <FileUploader ownerId={ownerId} accountId={accountId} />
             <Button
               type="submit"
               className="mobile-sign-out-button"
