@@ -12,8 +12,21 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://storeit.vedanshu.dev"),
   title: "StoreIt",
   description: "StoreIt - The only storage solution you need.",
+  openGraph: {
+    title: "StoreIt",
+    description: "StoreIt - The only storage solution you need.",
+    url: "https://storeit.vedanshu.dev",
+    siteName: "StoreIt",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "StoreIt",
+    description: "StoreIt - The only storage solution you need.",
+  },
 };
 
 export default function RootLayout({
