@@ -2,7 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "storeit",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2025-03-01",
+  // date >= 2025-05-05 makes WeakRef/FinalizationRegistry (used by recharts on the
+  // Dashboard chart) available by default — fixes "WeakRef is not defined".
+  "compatibility_date": "2025-05-05",
   // nodejs_compat: required for node-appwrite (Buffer, InputFile) in server actions.
   // global_fetch_strictly_public: required by the OpenNext Cloudflare adapter.
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
