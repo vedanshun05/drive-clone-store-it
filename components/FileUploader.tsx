@@ -69,7 +69,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
   };
 
   return (
-    <div {...getRootProps()} className="cursor-pointer">
+    <div {...getRootProps()} className="dropzone-cartoon">
       <input {...getInputProps()} />
       <Button type="button" className={cn("uploader-button", className)}>
         <Image
@@ -102,8 +102,8 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                   <div>
                     <p className="preview-item-name">{file.name}</p>
                     <Image
-                      src="/assets/icons/file-loader.gif"
-                      width={80}
+                      src="/assets/icons/loader-brand.svg"
+                      width={26}
                       height={26}
                       alt="Loader"
                       unoptimized
