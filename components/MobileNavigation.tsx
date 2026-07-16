@@ -13,6 +13,8 @@ import { Separator } from "@radix-ui/react-separator";
 import { navItems } from "@/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import BrandLogo from "@/components/BrandLogo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import FileUploader from "@/components/FileUploader";
 import { signOutUser } from "@/lib/actions/user.actions";
@@ -37,14 +39,16 @@ const MobileNavigation = ({
 
   return (
     <header className="mobile-header">
-      <Image
-        src="/assets/icons/logo-full-brand.svg"
-        alt="logo"
+      <BrandLogo
+        variant="full"
         width={120}
         height={52}
-        className="h-auto"
+        imgClassName="h-auto"
         style={{ width: "auto", height: "auto" }}
       />
+
+      <div className="flex items-center gap-2">
+        <ThemeToggle className="size-10 min-w-10" />
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>
@@ -120,6 +124,7 @@ const MobileNavigation = ({
           </div>
         </SheetContent>
       </Sheet>
+      </div>
     </header>
   );
 };

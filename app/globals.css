@@ -11,6 +11,8 @@
 
   /* Colors — cartoon ink + support palette */
   --color-ink: #1a1a1a;
+  /* border/outline color — flips to transparent under data-theme=original */
+  --color-line: #1a1a1a;
   --color-sunny: #ffd23f;
   --color-sky: #4cc9f0;
   --color-coral: #ff6b6b;
@@ -70,8 +72,9 @@
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
-  /* Font family */
-  --font-poppins: var(--font-poppins);
+  /* Font family — mapped per theme (default = cartoon: Fredoka + Nunito) */
+  --font-poppins: var(--font-fredoka);
+  --font-sans: var(--font-nunito);
 
   /* Box shadow — hard offset "cartoon" drops (no blur) */
   --shadow-drop-1: 3px 3px 0 0 #1a1a1a;
@@ -314,7 +317,7 @@
   @apply mx-auto max-w-7xl px-5;
 }
 @utility primary-btn {
-  @apply bg-brand! text-white! border-2! border-ink! hover:bg-brand-100! transition-all! rounded-full! button! shadow-drop-1! hover:translate-x-[2px]! hover:translate-y-[2px]! hover:shadow-[1px_1px_0_#1a1a1a]!;
+  @apply bg-brand! text-white! border-2! border-line! hover:bg-brand-100! transition-all! rounded-full! button! shadow-drop-1! hover:translate-x-[2px]! hover:translate-y-[2px]! hover:shadow-[1px_1px_0_#1a1a1a]!;
 }
 @utility flex-center {
   @apply flex items-center justify-center;
@@ -328,7 +331,7 @@
 }
 
 @utility shad-form-item {
-  @apply flex h-[78px] flex-col justify-center rounded-xl border-2 border-ink bg-white px-4 shadow-drop-1;
+  @apply flex h-[78px] flex-col justify-center rounded-xl border-2 border-line bg-white px-4 shadow-drop-1;
 }
 @utility shad-form-label {
   @apply text-light-100! pt-2! body-2! w-full!;
@@ -337,16 +340,16 @@
   @apply text-red! body-2! ml-4!;
 }
 @utility shad-alert-dialog {
-  @apply space-y-4! max-w-[95%]! sm:w-fit! rounded-xl! md:rounded-[30px]! border-2! border-ink! px-4! md:px-8! py-10! bg-white! shadow-drop-2! outline-none!;
+  @apply space-y-4! max-w-[95%]! sm:w-fit! rounded-xl! md:rounded-[30px]! border-2! border-line! px-4! md:px-8! py-10! bg-white! shadow-drop-2! outline-none!;
 }
 @utility shad-submit-btn {
-  @apply bg-brand! text-white! border-2! border-ink! button! hover:bg-brand-100! transition-all! rounded-full! shadow-drop-1! hover:translate-x-[2px]! hover:translate-y-[2px]! hover:shadow-[1px_1px_0_#1a1a1a]!;
+  @apply bg-brand! text-white! border-2! border-line! button! hover:bg-brand-100! transition-all! rounded-full! shadow-drop-1! hover:translate-x-[2px]! hover:translate-y-[2px]! hover:shadow-[1px_1px_0_#1a1a1a]!;
 }
 @utility shad-otp {
   @apply w-full! flex! gap-1! sm:gap-2! justify-between!;
 }
 @utility shad-otp-slot {
-  @apply text-[40px]! font-medium! rounded-xl! ring-brand! shadow-drop-1! text-brand-100! bg-white! justify-center! flex! border-2! border-ink! size-12! md:size-16! gap-5!;
+  @apply text-[40px]! font-medium! rounded-xl! ring-brand! shadow-drop-1! text-brand-100! bg-white! justify-center! flex! border-2! border-line! size-12! md:size-16! gap-5!;
 }
 
 @utility shad-sheet {
@@ -360,7 +363,7 @@
   @apply cursor-pointer!;
 }
 @utility shad-dialog {
-  @apply rounded-[26px]! w-[90%]! max-w-[400px]! border-2! border-ink! bg-white! shadow-drop-2! px-6! py-8!;
+  @apply rounded-[26px]! w-[90%]! max-w-[400px]! border-2! border-line! bg-white! shadow-drop-2! px-6! py-8!;
 }
 @utility shad-chart-title {
   @apply text-white!;
@@ -387,7 +390,7 @@
   @apply mt-6! grid! grid-cols-1! gap-4! xl:mt-10! xl:grid-cols-2! xl:gap-9!;
 }
 @utility dashboard-summary-card {
-  @apply relative! mt-6! rounded-[20px]! border-2! border-ink! bg-white! p-5! shadow-drop-1! transition-all! hover:-translate-y-1! hover:shadow-drop-2!;
+  @apply relative! mt-6! rounded-[20px]! border-2! border-line! bg-white! p-5! shadow-drop-1! transition-all! hover:-translate-y-1! hover:shadow-drop-2!;
 }
 @utility summary-type-icon {
   @apply absolute! -left-3! top-[-25px]! z-10! w-[190px]! object-contain!;
@@ -399,7 +402,7 @@
   @apply h5! relative! z-20! text-center!;
 }
 @utility dashboard-recent-files {
-  @apply h-full! rounded-[20px]! xl:h-[654px]! custom-scrollbar! overflow-auto! border-2! border-ink! bg-white! shadow-drop-1! p-5! xl:p-7!;
+  @apply h-full! rounded-[20px]! xl:h-[654px]! custom-scrollbar! overflow-auto! border-2! border-line! bg-white! shadow-drop-1! p-5! xl:p-7!;
 }
 @utility recent-file-details {
   @apply flex! w-full! justify-between! items-center!;
@@ -428,7 +431,7 @@
 }
 
 @utility rename-input-field {
-  @apply body-2! shad-no-focus h-[52px]! w-full! rounded-full! border-2! border-ink! bg-white! px-4! shadow-drop-1!;
+  @apply body-2! shad-no-focus h-[52px]! w-full! rounded-full! border-2! border-line! bg-white! px-4! shadow-drop-1!;
 }
 @utility delete-confirmation {
   @apply text-center! text-light-100!;
@@ -437,14 +440,14 @@
   @apply font-medium! text-brand-100!;
 }
 @utility modal-cancel-button {
-  @apply h-[52px]! flex-1! rounded-full! border-2! border-ink! bg-white! text-light-100! shadow-drop-3! transition-all! hover:bg-cream! hover:translate-x-[1px]! hover:translate-y-[1px]! hover:shadow-none!;
+  @apply h-[52px]! flex-1! rounded-full! border-2! border-line! bg-white! text-light-100! shadow-drop-3! transition-all! hover:bg-cream! hover:translate-x-[1px]! hover:translate-y-[1px]! hover:shadow-none!;
 }
 @utility modal-submit-button {
   @apply primary-btn mx-0! h-[52px]! w-full! flex-1!;
 }
 
 @utility file-details-thumbnail {
-  @apply mb-1! flex! items-center! gap-3! rounded-xl! border-2! border-ink! bg-cream! p-3!;
+  @apply mb-1! flex! items-center! gap-3! rounded-xl! border-2! border-line! bg-cream! p-3!;
 }
 @utility file-details-label {
   @apply body-2! w-[30%]! text-light-100!;
@@ -457,7 +460,7 @@
   @apply mt-2! space-y-2!;
 }
 @utility share-input-field {
-  @apply body-2! shad-no-focus h-[52px]! w-full! rounded-full! border-2! border-ink! bg-white! px-4! shadow-drop-1!;
+  @apply body-2! shad-no-focus h-[52px]! w-full! rounded-full! border-2! border-line! bg-white! px-4! shadow-drop-1!;
 }
 @utility share-remove-user {
   @apply rounded-full! bg-transparent! text-light-100! shadow-none! hover:bg-transparent!;
@@ -480,14 +483,14 @@
 }
 
 @utility file-card {
-  @apply flex! cursor-pointer! flex-col! gap-6! rounded-[18px]! border-2! border-ink! bg-white! p-5! shadow-drop-1! transition-all! hover:-translate-y-1! hover:shadow-drop-2!;
+  @apply flex! cursor-pointer! flex-col! gap-6! rounded-[18px]! border-2! border-line! bg-white! p-5! shadow-drop-1! transition-all! hover:-translate-y-1! hover:shadow-drop-2!;
 }
 @utility file-card-details {
   @apply flex! flex-col! gap-2! text-light-100!;
 }
 
 @utility chart {
-  @apply flex! items-center! rounded-[20px]! border-2! border-ink! bg-brand! p-2! text-white! shadow-drop-2! md:flex-col! xl:flex-row!;
+  @apply flex! items-center! rounded-[20px]! border-2! border-line! bg-brand! p-2! text-white! shadow-drop-2! md:flex-col! xl:flex-row!;
 }
 @utility chart-container {
   @apply mx-auto! aspect-square! w-[180px]! text-white! xl:w-[200px]!;
@@ -509,20 +512,20 @@
 }
 
 @utility uploader-button {
-  @apply bg-brand! text-white! border-2! border-ink! hover:bg-brand-100! transition-all! rounded-full! button! h-[52px]! gap-2! px-10! shadow-drop-1! hover:translate-x-[2px]! hover:translate-y-[2px]! hover:shadow-[1px_1px_0_#1a1a1a]!;
+  @apply bg-brand! text-white! border-2! border-line! hover:bg-brand-100! transition-all! rounded-full! button! h-[52px]! gap-2! px-10! shadow-drop-1! hover:translate-x-[2px]! hover:translate-y-[2px]! hover:shadow-[1px_1px_0_#1a1a1a]!;
 }
 @utility uploader-preview-list {
-  @apply fixed! bottom-10! right-10! z-50! flex! size-full! h-fit! max-w-[480px]! flex-col! gap-3! rounded-[20px]! border-2! border-ink! bg-white! p-7! shadow-drop-2!;
+  @apply fixed! bottom-10! right-10! z-50! flex! size-full! h-fit! max-w-[480px]! flex-col! gap-3! rounded-[20px]! border-2! border-line! bg-white! p-7! shadow-drop-2!;
 }
 @utility uploader-preview-item {
-  @apply flex! items-center! justify-between! gap-3! rounded-xl! border-2! border-ink! bg-white! p-3! shadow-drop-3!;
+  @apply flex! items-center! justify-between! gap-3! rounded-xl! border-2! border-line! bg-white! p-3! shadow-drop-3!;
 }
 @utility preview-item-name {
   @apply subtitle-2! mb-2! line-clamp-1! max-w-[300px]!;
 }
 
 @utility error-toast {
-  @apply bg-red! text-white! border-2! border-ink! rounded-[10px]! shadow-drop-2!;
+  @apply bg-red! text-white! border-2! border-line! rounded-[10px]! shadow-drop-2!;
 }
 
 @utility header {
@@ -532,17 +535,17 @@
   @apply flex! items-center! justify-center! min-w-fit! gap-4!;
 }
 @utility sign-out-button {
-  @apply flex! items-center! justify-center! h-[52px]! min-w-[54px]! rounded-full! border-2! border-ink! bg-brand/10! p-0! text-brand-100! shadow-drop-3! transition-all! hover:bg-brand/20! hover:translate-x-[1px]! hover:translate-y-[1px]! hover:shadow-none!;
+  @apply flex! items-center! justify-center! h-[52px]! min-w-[54px]! rounded-full! border-2! border-line! bg-brand/10! p-0! text-brand-100! shadow-drop-3! transition-all! hover:bg-brand/20! hover:translate-x-[1px]! hover:translate-y-[1px]! hover:shadow-none!;
 }
 
 @utility mobile-header {
   @apply flex! h-[60px]! justify-between! px-5! sm:hidden!;
 }
 @utility header-user {
-  @apply my-3! flex! items-center! gap-2! rounded-full! p-1! text-light-100! sm:justify-center! sm:border-2! sm:border-ink! sm:bg-brand/10! lg:justify-start! lg:p-3!;
+  @apply my-3! flex! items-center! gap-2! rounded-full! p-1! text-light-100! sm:justify-center! sm:border-2! sm:border-line! sm:bg-brand/10! lg:justify-start! lg:p-3!;
 }
 @utility header-user-avatar {
-  @apply aspect-square! w-10! rounded-full! border-2! border-ink! object-cover!;
+  @apply aspect-square! w-10! rounded-full! border-2! border-line! object-cover!;
 }
 @utility mobile-nav {
   @apply h5! flex-1! gap-1! text-brand!;
@@ -554,7 +557,7 @@
   @apply flex! text-light-100! gap-4! w-full! justify-start! items-center! h5! px-6! h-[52px]! rounded-full!;
 }
 @utility mobile-sign-out-button {
-  @apply h5! flex! h-[52px]! w-full! items-center! gap-4! rounded-full! border-2! border-ink! bg-brand/10! px-6! text-brand-100! shadow-drop-3! transition-all! hover:bg-brand/20!;
+  @apply h5! flex! h-[52px]! w-full! items-center! gap-4! rounded-full! border-2! border-line! bg-brand/10! px-6! text-brand-100! shadow-drop-3! transition-all! hover:bg-brand/20!;
 }
 
 @utility otp-close-button {
@@ -565,13 +568,13 @@
   @apply relative! w-full! md:max-w-[480px]!;
 }
 @utility search-input-wrapper {
-  @apply flex! h-[52px]! flex-1! items-center! gap-3! rounded-full! border-2! border-ink! bg-white! px-4! shadow-drop-3!;
+  @apply flex! h-[52px]! flex-1! items-center! gap-3! rounded-full! border-2! border-line! bg-white! px-4! shadow-drop-3!;
 }
 @utility search-input {
   @apply body-2! shad-no-focus w-full! border-none! p-0! shadow-none! placeholder:text-light-200!;
 }
 @utility search-result {
-  @apply absolute! left-0! top-16! z-50! flex! w-full! flex-col! gap-3! rounded-[20px]! border-2! border-ink! bg-white! shadow-drop-2! p-4!;
+  @apply absolute! left-0! top-16! z-50! flex! w-full! flex-col! gap-3! rounded-[20px]! border-2! border-line! bg-white! shadow-drop-2! p-4!;
 }
 @utility empty-result {
   @apply body-2! text-center! text-light-100!;
@@ -587,25 +590,25 @@
   @apply flex! text-light-100! gap-4! rounded-xl! lg:w-full! justify-center! lg:justify-start! items-center! h5! lg:px-[30px]! h-[52px]! lg:rounded-full!;
 }
 @utility sidebar-user-info {
-  @apply mt-4! flex! items-center! justify-center! gap-2! rounded-full! border-2! border-ink! bg-brand/10! p-1! text-light-100! shadow-drop-3! lg:justify-start! lg:p-3!;
+  @apply mt-4! flex! items-center! justify-center! gap-2! rounded-full! border-2! border-line! bg-brand/10! p-1! text-light-100! shadow-drop-3! lg:justify-start! lg:p-3!;
 }
 @utility sidebar-user-avatar {
-  @apply aspect-square! w-10! rounded-full! border-2! border-ink! object-cover!;
+  @apply aspect-square! w-10! rounded-full! border-2! border-line! object-cover!;
 }
 
 @utility shad-active {
-  @apply bg-brand! text-white! border-2! border-ink! shadow-drop-3!;
+  @apply bg-brand! text-white! border-2! border-line! shadow-drop-3!;
 }
 
 @utility sort-select {
-  @apply shad-no-focus h-11! w-full! rounded-[10px]! border-2! border-ink! bg-white! shadow-drop-3! sm:w-[210px]!;
+  @apply shad-no-focus h-11! w-full! rounded-[10px]! border-2! border-line! bg-white! shadow-drop-3! sm:w-[210px]!;
 }
 @utility sort-select-content {
-  @apply border-2! border-ink! bg-white! shadow-drop-2!;
+  @apply border-2! border-line! bg-white! shadow-drop-2!;
 }
 
 @utility thumbnail {
-  @apply flex! items-center! justify-center! size-[50px]! min-w-[50px]! overflow-hidden! rounded-full! border-2! border-ink! bg-brand/10!;
+  @apply flex! items-center! justify-center! size-[50px]! min-w-[50px]! overflow-hidden! rounded-full! border-2! border-line! bg-brand/10!;
 }
 @utility thumbnail-image {
   @apply size-full! object-cover! object-center!;
@@ -621,8 +624,7 @@
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
+  --font-heading: var(--font-poppins);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -730,4 +732,84 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ===========================================================================
+   THEME TOGGLE — default (above) = CARTOON. This layer restores the ORIGINAL
+   (source) look when <html data-theme="original">. Colors/shadows/radius/fonts
+   flip via variable overrides; ink borders + custom cursors are switched off.
+   =========================================================================== */
+
+/* dual-asset visibility helpers (cartoon is the default) */
+.theme-original-only {
+  display: none;
+}
+
+html[data-theme="original"] {
+  /* brand + flats */
+  --color-brand: #fa7275;
+  --color-brand-100: #ea6365;
+  --color-red: #ff7474;
+  --color-green: #3dd9b3;
+  --color-blue: #56b8ff;
+  --color-orange: #f9ab72;
+  /* neutrals */
+  --color-ink: #131524;
+  --color-cream: #ffffff;
+  --color-light-100: #333f4e;
+  --color-light-200: #a3b2c7;
+  --color-light-300: #f2f5f9;
+  --color-light-400: #f2f4f8;
+  /* radius + fonts */
+  --radius: 0.625rem;
+  --font-poppins: var(--font-poppins-orig);
+  --font-sans: var(--font-geist);
+  /* the cartoon ink outlines (border-line) vanish — text-ink stays via --color-ink */
+  --color-line: transparent;
+}
+
+/* Tailwind inlines shadow *geometry* at build, so overriding --shadow-drop-* is
+   ignored; instead zero the shadow COLOR per element (Tailwind's --tw-shadow-color,
+   inherits:false → must be set on the elements, not just html). This flattens the
+   cartoon hard offset shadows in original mode. */
+html[data-theme="original"] *,
+html[data-theme="original"] {
+  --tw-shadow-color: transparent;
+}
+
+/* reset custom SVG cursors back to native pointers in original mode */
+html[data-theme="original"] body {
+  cursor: auto;
+}
+html[data-theme="original"] a,
+html[data-theme="original"] button,
+html[data-theme="original"] label,
+html[data-theme="original"] summary,
+html[data-theme="original"] [role="button"],
+html[data-theme="original"] [role="menuitem"],
+html[data-theme="original"] [role="option"],
+html[data-theme="original"] [data-slot="select-trigger"],
+html[data-theme="original"] .dropzone-cartoon,
+html[data-theme="original"] .cursor-pointer {
+  cursor: pointer;
+}
+html[data-theme="original"] input,
+html[data-theme="original"] textarea,
+html[data-theme="original"] [contenteditable="true"],
+html[data-theme="original"] .shad-input,
+html[data-theme="original"] .search-input {
+  cursor: text;
+}
+html[data-theme="original"] :disabled,
+html[data-theme="original"] [disabled],
+html[data-theme="original"] [aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* swap dual assets (logos / illustrations) */
+html[data-theme="original"] .theme-cartoon-only {
+  display: none;
+}
+html[data-theme="original"] .theme-original-only {
+  display: revert;
 }

@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BrandLogo from "@/components/BrandLogo";
+import ThemeIllustration from "@/components/ThemeIllustration";
 
 interface Props {
   fullName: string;
@@ -18,21 +20,20 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
   return (
     <aside className="sidebar">
       <Link href="/">
-        <Image
-          src="/assets/icons/logo-full-brand.svg"
-          alt="logo"
+        <BrandLogo
+          variant="full"
           width={160}
           height={50}
-          className="hidden h-auto lg:block"
-          style={{ width: 'auto', height: 'auto' }}
+          className="hidden lg:contents"
+          imgClassName="h-auto"
+          style={{ width: "auto", height: "auto" }}
         />
 
-        <Image
-          src="/assets/icons/logo-brand.svg"
-          alt="logo"
+        <BrandLogo
+          variant="mark"
           width={52}
           height={52}
-          className="lg:hidden"
+          className="contents lg:hidden"
         />
       </Link>
 
@@ -63,14 +64,12 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
         </ul>
       </nav>
 
-      <Image
-        src="/assets/images/cartoon-files.svg"
-        alt="illustration"
+      <ThemeIllustration
+        original="/assets/images/files-2.png"
         width={506}
         height={418}
         className="w-full"
-        loading="eager"
-        style={{ width: '100%', height: 'auto' }}
+        style={{ width: "100%", height: "auto" }}
       />
 
       <div className="sidebar-user-info">

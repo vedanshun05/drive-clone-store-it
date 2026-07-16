@@ -1,8 +1,12 @@
 import Image from "next/image";
+import BrandLogo from "@/components/BrandLogo";
+import ThemeIllustration from "@/components/ThemeIllustration";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen">
+      <ThemeToggle className="fixed right-4 top-4 z-50 size-11" />
       <section
         className="
           hidden w-1/2 items-center justify-center bg-brand p-10
@@ -29,9 +33,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               This is a place where you can store all your documents.
             </p>
           </div>
-          <Image
-            src="/assets/images/cartoon-files.svg"
-            alt="Files"
+          <ThemeIllustration
+            original="/assets/images/files.png"
             width={342}
             height={342}
             className="
@@ -50,12 +53,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           mb-16
           lg:hidden
         ">
-          <Image
-            src="/assets/icons/logo-full-brand.svg"
-            alt="logo"
+          <BrandLogo
+            variant="full"
             width={224}
             height={82}
-            className="
+            imgClassName="
               h-auto w-[200px]
               lg:w-[250px]
             "

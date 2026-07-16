@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Fredoka, Nunito, Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const nunito = Nunito({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
-});
-
-// Fredoka drives headings; kept under the --font-poppins var name so existing
-// `font-poppins` / heading utilities pick it up with no component changes.
+// Both theme font pairs are loaded; globals.css maps --font-poppins / --font-sans
+// to Fredoka+Nunito (cartoon, default) or Poppins+Geist (original) per data-theme.
 const fredoka = Fredoka({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-fredoka",
 });
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-nunito",
+});
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins-orig",
+});
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://storeit.vedanshu.dev"),
@@ -41,7 +46,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("antialiased", fredoka.variable, "font-sans", nunito.variable)}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn(
+        "antialiased font-sans",
+        fredoka.variable,
+        nunito.variable,
+        poppins.variable,
+        geist.variable,
+      )}
+    >
+      <head>
+        {/* No-flash theme bootstrap: set data-theme before first paint (default: cartoon). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{document.documentElement.dataset.theme=localStorage.getItem("theme")||"cartoon"}catch(e){document.documentElement.dataset.theme="cartoon"}`,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         {children}
       </body>
