@@ -1,0 +1,43 @@
+<svg width="342" height="342" viewBox="0 0 342 342" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- global cartoon ink outline defaults -->
+  <g stroke="#1a1a1a" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+
+    <!-- little cloud, top-left -->
+    <g fill="#ffffff">
+      <path d="M62 78c-14 0-25 9-25 21 0 11 10 19 24 19h47c13 0 23-8 23-19 0-11-10-19-22-19-2-11-12-19-25-19-12 0-22 7-22 17z"/>
+    </g>
+
+    <!-- sparkles -->
+    <g fill="#ffd23f">
+      <path d="M270 60l6 15 15 6-15 6-6 15-6-15-15-6 15-6z" stroke-width="4"/>
+    </g>
+    <g fill="#4cc9f0">
+      <path d="M300 150l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" stroke-width="4"/>
+    </g>
+
+    <!-- BACK document sheet (rotated) -->
+    <g transform="rotate(-12 150 200)">
+      <rect x="96" y="120" width="150" height="190" rx="14" fill="#ffffff"/>
+      <rect x="96" y="120" width="150" height="40" rx="14" fill="#4cc9f0"/>
+      <line x1="118" y1="188" x2="224" y2="188" stroke-width="7"/>
+      <line x1="118" y1="214" x2="224" y2="214" stroke-width="7"/>
+      <line x1="118" y1="240" x2="196" y2="240" stroke-width="7"/>
+    </g>
+
+    <!-- MIDDLE document sheet (rotated other way) -->
+    <g transform="rotate(9 190 210)">
+      <rect x="150" y="130" width="150" height="190" rx="14" fill="#ffffff"/>
+      <rect x="150" y="130" width="150" height="40" rx="14" fill="#ff6b6b"/>
+      <line x1="172" y1="198" x2="278" y2="198" stroke-width="7"/>
+      <line x1="172" y1="224" x2="278" y2="224" stroke-width="7"/>
+      <line x1="172" y1="250" x2="250" y2="250" stroke-width="7"/>
+    </g>
+
+    <!-- FRONT folder (sunny) with emerald tab -->
+    <g>
+      <path d="M60 214h64l20 22h98c9 0 16 7 16 16v70c0 9-7 16-16 16H60c-9 0-16-7-16-16v-92c0-9 7-16 16-16z" fill="#ffd23f"/>
+      <path d="M60 250h222v72c0 9-7 16-16 16H60c-9 0-16-7-16-16v-56c0-9 7-16 16-16z" fill="#10b981"/>
+      <path d="M150 300h42" stroke="#ffffff" stroke-width="8"/>
+    </g>
+  </g>
+</svg>
