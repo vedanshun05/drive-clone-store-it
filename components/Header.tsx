@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Search from "@/components/Search";
 import FileUploader from "@/components/FileUploader";
+import ThemeToggle from "@/components/ThemeToggle";
 import { signOutUser } from "@/lib/actions/user.actions";
 
 const Header = ({
@@ -15,6 +16,7 @@ const Header = ({
     <header className="header">
       <Search />
       <div className="header-wrapper">
+        <ThemeToggle />
         <FileUploader ownerId={userId} accountId={accountId} />
         <form
           action={async () => {
