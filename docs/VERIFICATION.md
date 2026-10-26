@@ -51,7 +51,7 @@ Both production hostnames returned the expected root redirect and successful sig
 
 ## Automated checks
 
-- ESLint and TypeScript checks passed.
+- TypeScript passed. ESLint exited successfully with zero errors and 147 non-blocking Tailwind class-order/formatting warnings, including generated UI components.
 - **50 regression cases passed:** server actions/authentication (22), private file route (12), file utilities (10), backend setup (6).
 - Production build passed with Next.js 16.2.9. The build requires access to Google Fonts for Geist; a sandboxed attempt failed to fetch the font, and the network-enabled build succeeded.
 - Read-only backend verification passed for columns, indexes, permissions, relationships, bucket configuration, and application query shapes.
