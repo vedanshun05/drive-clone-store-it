@@ -8,9 +8,15 @@ interface Props {
   file: AppwriteFile;
   onInputChange: React.Dispatch<React.SetStateAction<string[]>>;
   onRemove: (email: string) => void;
+  disabled?: boolean;
 }
 
-export const ShareInput = ({ file, onInputChange, onRemove }: Props) => {
+export const ShareInput = ({
+  file,
+  onInputChange,
+  onRemove,
+  disabled = false,
+}: Props) => {
   return (
     <>
       <ImageThumbnail file={file} />
@@ -21,10 +27,10 @@ export const ShareInput = ({ file, onInputChange, onRemove }: Props) => {
         </p>
         <Input
           type="email"
+          disabled={disabled}
           placeholder="Enter email address"
           onChange={(e) =>
             onInputChange([
-              ...file.users,
               ...e.target.value
                 .split(",")
                 .map((email) => email.trim())
@@ -37,7 +43,7 @@ export const ShareInput = ({ file, onInputChange, onRemove }: Props) => {
           <div className="flex justify-between">
             <p className="subtitle-2 text-light-100">Shared with</p>
             <p className="subtitle-2 text-light-200">
-              {file.users.length} users
+              {file.users.length} {file.users.length === 1 ? "user" : "users"}
             </p>
           </div>
 
@@ -50,6 +56,7 @@ export const ShareInput = ({ file, onInputChange, onRemove }: Props) => {
                 <p className="subtitle-2">{email}</p>
                 <Button
                   onClick={() => onRemove(email)}
+                  disabled={disabled}
                   className="share-remove-user"
                 >
                   <Image

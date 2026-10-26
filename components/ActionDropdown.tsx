@@ -19,7 +19,6 @@ import {
 import { useState } from "react";
 import Image from "next/image";
 import { actionsDropdownItems } from "@/constants";
-import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,9 @@ const ActionDropdown = ({
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
-  const [emails, setEmails] = useState<string[]>(file.users);
+  // Draft entries are separate from the canonical shared list, which can refresh
+  // after an action while the dialog is open.
+  const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
 
@@ -54,7 +55,7 @@ const ActionDropdown = ({
     setIsDropdownOpen(false);
     setAction(null);
     setName(file.name);
-    setEmails(file.users);
+    setEmails([]);
   };
 
   const handleAction = async () => {
@@ -64,7 +65,12 @@ const ActionDropdown = ({
     const actions = {
       rename: () =>
         renameFile({ fileId: file.$id, name, extension: file.extension, path }),
-      share: () => updateFileUsers({ fileId: file.$id, emails, path }),
+      share: () =>
+        updateFileUsers({
+          fileId: file.$id,
+          emails: [...file.users, ...emails],
+          path,
+        }),
       delete: () =>
         deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
     };
@@ -124,6 +130,7 @@ const ActionDropdown = ({
               file={file}
               onInputChange={setEmails}
               onRemove={handleRemoveUser}
+              disabled={isLoading}
             />
           )}
           {value === "delete" && (
@@ -166,6 +173,7 @@ const ActionDropdown = ({
         <DropdownMenuTrigger
           aria-label={`Actions for ${file.name}`}
           className="shad-no-focus"
+          disabled={isLoading}
         >
           <Image src="/assets/icons/dots.svg" alt="" width={34} height={34} />
         </DropdownMenuTrigger>
@@ -179,26 +187,14 @@ const ActionDropdown = ({
               (item) =>
                 canManage || ["details", "download"].includes(item.value),
             )
-            .map((actionItem) => (
-              <DropdownMenuItem
-                key={actionItem.value}
-                className="shad-dropdown-item"
-                onClick={() => {
-                  setName(file.name);
-                  setEmails(file.users);
-                  setAction(actionItem);
-
-                  if (
-                    ["rename", "share", "delete", "details"].includes(
-                      actionItem.value,
-                    )
-                  ) {
-                    setIsModalOpen(true);
-                  }
-                }}
-              >
-                {actionItem.value === "download" ? (
-                  <Link
+            .map((actionItem) =>
+              actionItem.value === "download" ? (
+                <DropdownMenuItem
+                  asChild
+                  key={actionItem.value}
+                  className="shad-dropdown-item"
+                >
+                  <a
                     href={constructDownloadUrl(file.bucketFileId)}
                     download={file.name}
                     className="flex items-center gap-2"
@@ -210,8 +206,26 @@ const ActionDropdown = ({
                       height={30}
                     />
                     {actionItem.label}
-                  </Link>
-                ) : (
+                  </a>
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  key={actionItem.value}
+                  className="shad-dropdown-item"
+                  onClick={() => {
+                    setName(file.name);
+                    setEmails([]);
+                    setAction(actionItem);
+
+                    if (
+                      ["rename", "share", "delete", "details"].includes(
+                        actionItem.value,
+                      )
+                    ) {
+                      setIsModalOpen(true);
+                    }
+                  }}
+                >
                   <div className="flex items-center gap-2">
                     <Image
                       src={actionItem.icon}
@@ -221,9 +235,9 @@ const ActionDropdown = ({
                     />
                     {actionItem.label}
                   </div>
-                )}
-              </DropdownMenuItem>
-            ))}
+                </DropdownMenuItem>
+              ),
+            )}
         </DropdownMenuContent>
       </DropdownMenu>
 
