@@ -74,7 +74,12 @@ const Search = () => {
   };
 
   return (
-    <div className="search">
+    <div
+      className="search"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
       <div className="search-input-wrapper">
         <Image
           src="/assets/icons/search.svg"
@@ -85,6 +90,10 @@ const Search = () => {
         <Input
           value={query}
           placeholder="Search..."
+          aria-label="Search files"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setOpen(false);
+          }}
           className="search-input"
           onChange={(e) => {
             setQuery(e.target.value);
@@ -100,27 +109,29 @@ const Search = () => {
           <ul className="search-result">
             {results.length > 0 ? (
               results.map((file) => (
-                <li
-                  className="flex items-center justify-between"
-                  key={file.$id}
-                  onClick={() => handleClickItem(file)}
-                >
-                  <div className="flex cursor-pointer items-center gap-4">
-                    <Thumbnail
-                      type={file.type}
-                      extension={file.extension}
-                      url={file.url}
-                      className="size-9 min-w-9"
-                    />
-                    <p className="subtitle-2 line-clamp-1 text-light-100">
-                      {file.name}
-                    </p>
-                  </div>
+                <li key={file.$id}>
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-3 rounded-lg p-2 text-left hover:bg-light-400 focus-visible:outline-2 focus-visible:outline-brand"
+                    onClick={() => handleClickItem(file)}
+                  >
+                    <div className="flex cursor-pointer items-center gap-4">
+                      <Thumbnail
+                        type={file.type}
+                        extension={file.extension}
+                        url={file.url}
+                        className="size-9 min-w-9"
+                      />
+                      <p className="subtitle-2 line-clamp-1 text-light-100">
+                        {file.name}
+                      </p>
+                    </div>
 
-                  <FormattedDateTime
-                    date={file.$createdAt}
-                    className="caption line-clamp-1 text-light-200"
-                  />
+                    <FormattedDateTime
+                      date={file.$createdAt}
+                      className="caption line-clamp-1 text-light-200"
+                    />
+                  </button>
                 </li>
               ))
             ) : (

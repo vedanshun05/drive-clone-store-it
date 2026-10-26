@@ -13,7 +13,8 @@ import { redirect } from "next/navigation";
 
 const Dashboard = async () => {
   // Pages and layouts render in parallel; protect data loading here as well.
-  if (!(await getCurrentUser())) redirect("/sign-in");
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/sign-in");
   // Parallel requests
   const [files, totalSpace] = await Promise.all([
     getFiles({ types: [], limit: 10 }),
@@ -68,30 +69,34 @@ const Dashboard = async () => {
         {files.rows.length > 0 ? (
           <ul className="mt-5 flex flex-col gap-5">
             {files.rows.map((file: AppwriteFile) => (
-              <Link
-                href={file.url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3"
-                key={file.$id}
-              >
-                <Thumbnail
-                  type={file.type}
-                  extension={file.extension}
-                  url={file.url}
-                />
+              <li className="flex items-center gap-3" key={file.$id}>
+                <Link
+                  href={file.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex min-w-0 flex-1 items-center gap-3"
+                >
+                  <Thumbnail
+                    type={file.type}
+                    extension={file.extension}
+                    url={file.url}
+                  />
 
-                <div className="recent-file-details">
-                  <div className="flex flex-col gap-1">
-                    <p className="recent-file-name">{file.name}</p>
-                    <FormattedDateTime
-                      date={file.$createdAt}
-                      className="caption"
-                    />
+                  <div className="recent-file-details">
+                    <div className="flex flex-col gap-1">
+                      <p className="recent-file-name">{file.name}</p>
+                      <FormattedDateTime
+                        date={file.$createdAt}
+                        className="caption"
+                      />
+                    </div>
                   </div>
-                  <ActionDropdown file={file} />
-                </div>
-              </Link>
+                </Link>
+                <ActionDropdown
+                  file={file}
+                  canManage={file.owner.$id === currentUser.$id}
+                />
+              </li>
             ))}
           </ul>
         ) : (

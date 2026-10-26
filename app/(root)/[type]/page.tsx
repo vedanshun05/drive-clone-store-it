@@ -7,7 +7,8 @@ import { sortTypes } from "@/constants";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 
 const Page = async ({ params, searchParams }: SearchParamProps) => {
-  if (!(await getCurrentUser())) redirect("/sign-in");
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/sign-in");
   const type = ((await params)?.type as string) || "";
   if (!["documents", "images", "media", "others"].includes(type)) notFound();
   const queryParams = await searchParams;
@@ -46,7 +47,7 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
       {files?.total > 0 ? (
         <section className="file-list">
           {files.rows.map((file: AppwriteFile) => (
-            <Card key={file.$id} file={file} />
+            <Card key={file.$id} file={file} currentUserId={currentUser.$id} />
           ))}
         </section>
       ) : (

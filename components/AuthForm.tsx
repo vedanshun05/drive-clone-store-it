@@ -24,10 +24,10 @@ type FormType = "sign-in" | "sign-up";
 
 const authFormSchema = (formType: FormType) => {
   return z.object({
-    email: z.string().email(),
+    email: z.string().trim().email().toLowerCase(),
     fullName:
       formType === "sign-up"
-        ? z.string().min(2).max(50)
+        ? z.string().trim().min(2, "Enter at least 2 characters.").max(50)
         : z.string().optional(),
   });
 };
@@ -90,6 +90,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                     <FormControl>
                       <Input
                         placeholder="Enter your full name"
+                        autoComplete="name"
                         className="shad-input"
                         {...field}
                       />
@@ -113,6 +114,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
                   <FormControl>
                     <Input
                       placeholder="Enter your email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
                       className="shad-input"
                       {...field}
                     />
@@ -142,7 +146,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
             )}
           </Button>
 
-          {errorMessage && <p className="error-message">*{errorMessage}</p>}
+          {errorMessage && (
+            <p role="alert" className="error-message">
+              {errorMessage}
+            </p>
+          )}
 
           <div className="body-2 flex justify-center">
             <p className="text-light-100">

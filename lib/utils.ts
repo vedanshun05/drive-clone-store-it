@@ -10,8 +10,11 @@ export const parseStringify = (value: unknown) =>
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 
-export const getFileType = (fileName: string) => {
-  const extension = fileName.split(".").pop()?.toLowerCase();
+export const getFileType = (
+  fileName: string,
+): { type: FileType; extension: string } => {
+  const dot = fileName.lastIndexOf(".");
+  const extension = dot > 0 ? fileName.slice(dot + 1).toLowerCase() : "";
 
   if (!extension) return { type: "other", extension: "" };
 
@@ -26,6 +29,7 @@ export const getFileType = (fileName: string) => {
     "rtf",
     "ods",
     "ppt",
+    "pptx",
     "odp",
     "md",
     "html",
@@ -41,9 +45,39 @@ export const getFileType = (fileName: string) => {
     "afdesign",
     "afphoto",
   ];
-  const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"];
-  const videoExtensions = ["mp4", "avi", "mov", "mkv", "webm"];
-  const audioExtensions = ["mp3", "wav", "ogg", "flac"];
+  const imageExtensions = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "svg",
+    "webp",
+    "avif",
+  ];
+  const videoExtensions = [
+    "mp4",
+    "avi",
+    "mov",
+    "mkv",
+    "webm",
+    "wmv",
+    "flv",
+    "m4v",
+    "3gp",
+  ];
+  const audioExtensions = [
+    "mp3",
+    "wav",
+    "ogg",
+    "flac",
+    "aac",
+    "wma",
+    "m4a",
+    "aiff",
+    "alac",
+    "mpeg",
+  ];
 
   if (documentExtensions.includes(extension))
     return { type: "document", extension };

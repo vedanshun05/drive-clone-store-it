@@ -23,6 +23,7 @@ const getOwnedFile = async (fileId: string) => {
     databaseId: appwriteConfig.databaseId,
     tableId: appwriteConfig.filesTableId,
     rowId: fileId,
+    queries: [Query.select(["*", "owner.*"])],
   });
   const ownerId = typeof file.owner === "string" ? file.owner : file.owner?.$id;
   if (ownerId !== user.$id) throw new Error("You do not own this file.");

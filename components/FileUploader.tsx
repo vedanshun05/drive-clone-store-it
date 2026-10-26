@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
-import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
+import { cn, getFileType } from "@/lib/utils";
 import Image from "next/image";
 import Thumbnail from "@/components/Thumbnail";
 import { MAX_FILE_SIZE } from "@/constants";
@@ -19,16 +19,41 @@ interface Props {
 
 const FileUploader = ({ ownerId, accountId, className }: Props) => {
   const path = usePathname();
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<{ file: File; url?: string }[]>([]);
+  const previews = useRef(new Map<File, string>());
+  useEffect(() => {
+    const urls = previews.current;
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+      urls.clear();
+    };
+  }, []);
+
+  const releasePreview = useCallback((file: File) => {
+    const url = previews.current.get(file);
+    if (url) URL.revokeObjectURL(url);
+    previews.current.delete(file);
+  }, []);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      setFiles((previous) => [...previous, ...acceptedFiles]);
+      const entries = acceptedFiles.map((file) => {
+        let url: string | undefined;
+        if (
+          file.size <= MAX_FILE_SIZE &&
+          getFileType(file.name).type === "image"
+        ) {
+          url = URL.createObjectURL(file);
+          previews.current.set(file, url);
+        }
+        return { file, url };
+      });
+      setFiles((previous) => [...previous, ...entries]);
 
       const uploadPromises = acceptedFiles.map(async (file) => {
         if (file.size > MAX_FILE_SIZE) {
           setFiles((prevFiles) =>
-            prevFiles.filter((f) => f.name !== file.name),
+            prevFiles.filter((entry) => entry.file !== file),
           );
           return toast.error(
             `${file.name} is too large. Max file size is 4 MB.`,
@@ -40,23 +65,27 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
         } catch {
           toast.error(`Unable to upload ${file.name}. Please try again.`);
         } finally {
-          setFiles((prevFiles) => prevFiles.filter((f) => f !== file));
+          releasePreview(file);
+          setFiles((prevFiles) =>
+            prevFiles.filter((entry) => entry.file !== file),
+          );
         }
       });
 
       await Promise.all(uploadPromises);
     },
-    [ownerId, accountId, path],
+    [ownerId, accountId, path, releasePreview],
   );
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const handleRemoveFile = (
-    e: React.MouseEvent<HTMLImageElement, MouseEvent>,
-    fileName: string,
+    e: React.MouseEvent<HTMLButtonElement>,
+    file: File,
   ) => {
     e.stopPropagation();
-    setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
+    releasePreview(file);
+    setFiles((prevFiles) => prevFiles.filter((entry) => entry.file !== file));
   };
 
   return (
@@ -75,7 +104,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
         <ul className="uploader-preview-list">
           <h4 className="h4 text-light-100">Uploading</h4>
 
-          {files.map((file, index) => {
+          {files.map(({ file, url }, index) => {
             const { type, extension } = getFileType(file.name);
 
             return (
@@ -84,11 +113,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                 className="uploader-preview-item"
               >
                 <div className="flex items-center gap-3">
-                  <Thumbnail
-                    type={type}
-                    extension={extension}
-                    url={convertFileToUrl(file)}
-                  />
+                  <Thumbnail type={type} extension={extension} url={url} />
 
                   <div>
                     <p className="preview-item-name">{file.name}</p>
@@ -103,13 +128,20 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                   </div>
                 </div>
 
-                <Image
-                  src="/assets/icons/remove.svg"
-                  width={24}
-                  height={24}
-                  alt="Remove"
-                  onClick={(e) => handleRemoveFile(e, file.name)}
-                />
+                <button
+                  type="button"
+                  onClick={(event) => handleRemoveFile(event, file)}
+                  aria-label={`Hide upload progress for ${file.name}`}
+                  title="Hide progress; upload continues"
+                  className="shrink-0 rounded-full p-1 focus-visible:outline-2 focus-visible:outline-brand"
+                >
+                  <Image
+                    src="/assets/icons/remove.svg"
+                    width={24}
+                    height={24}
+                    alt=""
+                  />
+                </button>
               </li>
             );
           })}

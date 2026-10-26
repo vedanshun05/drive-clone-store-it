@@ -6,8 +6,8 @@
 
 @theme {
   /* Colors — brand */
-  --color-brand: #fa7275;
-  --color-brand-100: #ea6365;
+  --color-brand: #cc3f52;
+  --color-brand-100: #b83245;
 
   /* Colors — flat */
   --color-red: #ff7474;
@@ -19,7 +19,7 @@
 
   /* Colors — light */
   --color-light-100: #333f4e;
-  --color-light-200: #a3b2c7;
+  --color-light-200: #58677d;
   --color-light-300: #f2f5f9;
   --color-light-400: #f2f4f8;
 
@@ -61,9 +61,6 @@
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
-
-  /* Font family */
-  --font-poppins: var(--font-poppins);
 
   /* Box shadow */
   --shadow-drop-1: 0px 10px 30px 0px rgba(66, 71, 97, 0.1);
@@ -251,7 +248,7 @@
 }
 
 @utility shad-no-focus {
-  @apply outline-none! ring-offset-transparent! focus:ring-transparent! focus:ring-offset-0! focus-visible:outline-none! focus-visible:ring-0! focus-visible:ring-transparent! focus-visible:ring-offset-0!;
+  @apply outline-none! focus-visible:outline-2! focus-visible:outline-offset-2! focus-visible:outline-brand!;
 }
 @utility shad-input {
   @apply border-none! shadow-none! p-0! shad-no-focus placeholder:text-light-200! body-2!;
@@ -264,7 +261,7 @@
   @apply text-light-100! pt-2! body-2! w-full!;
 }
 @utility shad-form-message {
-  @apply text-red! body-2! ml-4!;
+  @apply text-error! body-2! ml-4!;
 }
 @utility shad-alert-dialog {
   @apply space-y-4! max-w-[95%]! sm:w-fit! rounded-xl! md:rounded-[30px]! px-4! md:px-8! py-10! bg-white! outline-none!;
@@ -281,10 +278,6 @@
 
 @utility shad-sheet {
   @apply pt-0!;
-}
-.shad-sheet button,
-.shad-dialog button {
-  @apply focus:ring-0! focus:ring-offset-0! focus-visible:border-none! outline-none! focus-visible:outline-none! focus-visible:ring-transparent! focus-visible:ring-offset-0!;
 }
 @utility shad-dropdown-item {
   @apply cursor-pointer!;
@@ -435,14 +428,14 @@
   @apply h3! font-bold! md:text-center! lg:text-left!;
 }
 @utility chart-description {
-  @apply subtitle-1! mt-2! w-full! text-white/70! md:text-center! lg:text-left!;
+  @apply subtitle-1! mt-2! w-full! text-white! md:text-center! lg:text-left!;
 }
 
 @utility uploader-button {
   @apply bg-brand! hover:bg-brand-100! transition-all! rounded-full! button! h-[52px]! gap-2! px-10! shadow-drop-1!;
 }
 @utility uploader-preview-list {
-  @apply fixed! bottom-10! right-10! z-50! flex! size-full! h-fit! max-w-[480px]! flex-col! gap-3! rounded-[20px]! bg-white! p-7! shadow-drop-3!;
+  @apply fixed! bottom-4! left-4! right-4! z-50! flex! max-h-[70vh]! overflow-auto! flex-col! gap-3! rounded-[20px]! bg-white! p-5! shadow-drop-3! sm:bottom-10! sm:left-auto! sm:right-10! sm:w-[480px]!;
 }
 @utility uploader-preview-item {
   @apply flex! items-center! justify-between! gap-3! rounded-xl! p-3! shadow-drop-3!;
@@ -466,7 +459,7 @@
 }
 
 @utility mobile-header {
-  @apply flex! h-[60px]! justify-between! px-5! sm:hidden!;
+  @apply flex! shrink-0! flex-col! gap-3! px-5! pb-4! sm:hidden!;
 }
 @utility header-user {
   @apply my-3! flex! items-center! gap-2! rounded-full! p-1! text-light-100! sm:justify-center! sm:bg-brand/10! lg:justify-start! lg:p-3!;

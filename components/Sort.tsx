@@ -24,7 +24,10 @@ const Sort = () => {
   return (
     <Select
       onValueChange={handleSort}
-      value={searchParams.get("sort") || sortTypes[0].value}
+      value={
+        sortTypes.find((sort) => sort.value === searchParams.get("sort"))
+          ?.value || sortTypes[0].value
+      }
     >
       <SelectTrigger className="sort-select">
         <SelectValue placeholder={sortTypes[0].value} />

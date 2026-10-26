@@ -4,6 +4,7 @@ import {
   Sheet,
   SheetContent,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Image from "next/image";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import FileUploader from "@/components/FileUploader";
 import { signOutUser } from "@/lib/actions/user.actions";
+import Search from "@/components/Search";
 
 interface Props {
   $id: string;
@@ -37,89 +39,95 @@ const MobileNavigation = ({
 
   return (
     <header className="mobile-header">
-      <Image
-        src="/assets/icons/logo-full-brand.svg"
-        alt="logo"
-        width={120}
-        height={52}
-        className="h-auto"
-        style={{ width: "auto", height: "auto" }}
-      />
+      <div className="flex h-[60px] items-center justify-between">
+        <Image
+          src="/assets/icons/logo-full-brand.svg"
+          alt="logo"
+          width={120}
+          height={52}
+          className="h-auto"
+          style={{ width: "auto", height: "auto" }}
+        />
 
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger>
-          <Image
-            src="/assets/icons/menu.svg"
-            alt="Search"
-            width={30}
-            height={30}
-          />
-        </SheetTrigger>
-        <SheetContent className="shad-sheet h-screen px-3">
-          <SheetTitle>
-            <div className="header-user">
-              <Image
-                src={avatar}
-                alt="avatar"
-                width={44}
-                height={44}
-                className="header-user-avatar"
-              />
-              <div className="sm:hidden lg:block">
-                <p className="subtitle-2 capitalize">{fullName}</p>
-                <p className="caption">{email}</p>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger aria-label="Open navigation">
+            <Image src="/assets/icons/menu.svg" alt="" width={30} height={30} />
+          </SheetTrigger>
+          <SheetContent className="shad-sheet h-screen px-3">
+            <SheetDescription className="sr-only">
+              Navigate your files, upload, or sign out.
+            </SheetDescription>
+            <SheetTitle>
+              <div className="header-user">
+                <Image
+                  src={avatar}
+                  alt="avatar"
+                  width={44}
+                  height={44}
+                  className="header-user-avatar"
+                />
+                <div className="sm:hidden lg:block">
+                  <p className="subtitle-2 capitalize">{fullName}</p>
+                  <p className="caption">{email}</p>
+                </div>
               </div>
-            </div>
-            <Separator className="mb-4 bg-light-200/20" />
-          </SheetTitle>
+              <Separator className="mb-4 bg-light-200/20" />
+            </SheetTitle>
 
-          <nav className="mobile-nav">
-            <ul className="mobile-nav-list">
-              {navItems.map(({ url, name, icon }) => (
-                <Link key={name} href={url} className="lg:w-full">
-                  <li
-                    className={cn(
-                      "mobile-nav-item",
-                      pathname === url && "shad-active",
-                    )}
+            <nav className="mobile-nav">
+              <ul className="mobile-nav-list">
+                {navItems.map(({ url, name, icon }) => (
+                  <Link
+                    key={name}
+                    href={url}
+                    onClick={() => setOpen(false)}
+                    className="lg:w-full"
                   >
-                    <Image
-                      src={icon}
-                      alt={name}
-                      width={24}
-                      height={24}
+                    <li
                       className={cn(
-                        "nav-icon",
-                        pathname === url && "nav-icon-active",
+                        "mobile-nav-item",
+                        pathname === url && "shad-active",
                       )}
-                    />
-                    <p>{name}</p>
-                  </li>
-                </Link>
-              ))}
-            </ul>
-          </nav>
+                    >
+                      <Image
+                        src={icon}
+                        alt={name}
+                        width={24}
+                        height={24}
+                        className={cn(
+                          "nav-icon",
+                          pathname === url && "nav-icon-active",
+                        )}
+                      />
+                      <p>{name}</p>
+                    </li>
+                  </Link>
+                ))}
+              </ul>
+            </nav>
 
-          <Separator className="my-5 bg-light-200/20" />
+            <Separator className="my-5 bg-light-200/20" />
 
-          <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader ownerId={ownerId} accountId={accountId} />
-            <Button
-              type="submit"
-              className="mobile-sign-out-button"
-              onClick={async () => await signOutUser()}
-            >
-              <Image
-                src="/assets/icons/logout.svg"
-                alt="logo"
-                width={24}
-                height={24}
-              />
-              <p>Logout</p>
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+            <div className="flex flex-col justify-between gap-5 pb-5">
+              <FileUploader ownerId={ownerId} accountId={accountId} />
+              <Button
+                type="submit"
+                className="mobile-sign-out-button"
+                onClick={async () => await signOutUser()}
+              >
+                <Image
+                  src="/assets/icons/logout.svg"
+                  alt="logo"
+                  width={24}
+                  height={24}
+                />
+                <p>Logout</p>
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <Search />
     </header>
   );
 };
