@@ -48,13 +48,12 @@ command, and the default Next.js output directory. Add every variable from
 This app needs a Node.js runtime for Appwrite and Server Actions. It cannot be
 deployed as a static export or a directory of static assets.
 
-Use https://storeit.vedanshu.dev as the public URL. The old repository homepage,
-`https://drive-clone-store-it.vercel.app`, returned Vercel's
-`DEPLOYMENT_NOT_FOUND` on inspection. This is a missing hosting alias, before
-Next.js routing runs. To restore that URL, add it to this project's domains in
-Vercel and assign it to the current production deployment. A successful production
-health check is `/` redirecting to `/sign-in`, with `/sign-in` and `/sign-up`
-returning HTTP 200.
+Use https://storeit.vedanshu.dev as the public URL.
+https://drive-clone-store-it.vercel.app is also assigned to this project's
+production environment. If a hostname returns Vercel's `DEPLOYMENT_NOT_FOUND`,
+check its project domain assignment: that error occurs before Next.js routing
+runs. A successful production health check is `/` redirecting to `/sign-in`,
+with `/sign-in` and `/sign-up` returning HTTP 200.
 
 Uploads currently pass through Server Actions and are limited to **4 MB per
 file**, leaving room beneath Vercel's 4.5 MB request limit. Increasing
