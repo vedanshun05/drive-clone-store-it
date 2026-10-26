@@ -82,7 +82,7 @@ The project owner confirmed sharing works with another signed-in account. A priv
 
 The rename dialog now exposes only the base name and shows the extension as a read-only suffix. Extensionless files keep their full editable name. Server-side extension preservation continues to apply.
 
-The expanded regression suite contains **72 cases**, including new notification authentication, recipient ownership, unchanged-share deduplication, re-share reset, revoked/deleted-file filtering, pagination, failure ordering, and base-name extraction checks.
+The expanded regression suite contains **78 cases**, including new notification authentication, recipient ownership, unchanged-share deduplication, re-share reset, revoked/deleted-file filtering, pagination, failure ordering, and base-name extraction checks.
 
 ## Follow-up: shared-file views and performance
 
@@ -97,3 +97,5 @@ The application was upgraded to Next.js 16.4.3, with compatible dependency secur
 The local production build was exercised in Chromium with disposable files and a temporary audit-owner profile. Checks passed for notification unread/read persistence, unchanged-share behavior, re-sharing, revoked access, actual UI sharing creating an unread notification, dashboard separation of owned/shared files, shared-only filtering combined with sorting, read-only recipient actions, fuzzy-match navigation, and extension-preserving renaming. Mobile notification controls and category filters were checked from 320 to 1440 pixels with no horizontal overflow. The final walkthrough recorded no browser console or page errors. All temporary files, metadata, notification rows, and the audit profile were removed afterward; no additional authentication account or outgoing email was created.
 
 The first live follow-up found cached page switches at 35–43 ms and warm local search at 8–9 ms without a query POST, but eagerly prefetching every sidebar page caused a 5,139 ms first-navigation spike. Explicit full-route prefetching was removed to avoid that startup burst; the loading boundary and 30-second client reuse remain. The Shared files navigation icon also received a monochrome, correctly scaled version of the existing three-node share symbol, without changing the action-menu artwork.
+
+Background search-index and notification reads were moved to authenticated, non-cacheable GET endpoints (`/api/search` and `/api/notifications`). This keeps periodic reads out of Next.js's Server Action queue, while sharing and read acknowledgements continue to use guarded Server Actions. Six additional regression cases cover the new endpoints' authentication, private cache headers, and safe outage responses.

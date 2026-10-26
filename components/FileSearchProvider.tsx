@@ -9,7 +9,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { getFileSearchIndex } from "@/lib/actions/file.actions";
 import { createFileSearchIndex } from "@/lib/search";
 
 const FilesContext = createContext<{
@@ -46,7 +45,10 @@ export function FileSearchProvider({
     setLoading(true);
     const task = (async () => {
       try {
-        const next = await getFileSearchIndex();
+        const response = await fetch("/api/search", { cache: "no-store" });
+        if (!response.ok)
+          throw new Error("Unable to refresh the search index.");
+        const next: FileSearchEntry[] = await response.json();
         if (!mounted.current) return;
         fetchedAt.current = Date.now();
         setFiles(next);

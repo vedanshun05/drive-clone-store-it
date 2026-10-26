@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import { Bell, Check, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
-  getShareNotifications,
   markShareNotificationRead,
   markAllShareNotificationsRead,
 } from "@/lib/actions/notification.actions";
@@ -56,7 +55,9 @@ export function NotificationsProvider({
     const version = ++request.current;
     setLoading(true);
     try {
-      const next = await getShareNotifications();
+      const response = await fetch("/api/notifications", { cache: "no-store" });
+      if (!response.ok) throw new Error("Unable to refresh notifications.");
+      const next: ShareInbox = await response.json();
       if (version !== request.current) return;
       const keys = new Set(
         next.notifications.map((item) => `${item.id}:${item.eventAt}`),

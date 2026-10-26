@@ -73,6 +73,8 @@ flowchart LR
 
 The browser receives an HTTP-only session cookie after OTP verification. Server-side Appwrite clients use that session to establish identity; administrative requests use a scoped server key. File mutation actions derive identity from the session rather than trusting owner IDs submitted by the browser. Repeated identity checks are deduplicated within a single server render using React cache, without sharing authenticated identities across requests.
 
+The authenticated `/api/search` and `/api/notifications` endpoints provide background metadata without placing periodic reads in the Server Action queue. Their responses are private and non-cacheable.
+
 The `/api/files/[fileId]` route authorizes each read and returns private, non-cacheable responses. HTML and SVG uploads are downloaded as attachments. Private image previews bypass Next.js image optimization so requests retain the browser’s session cookie.
 
 ### Stack
@@ -210,6 +212,8 @@ app/
   (auth)/                  Sign-in and sign-up pages
   (root)/                  Dashboard and file-category pages
   api/files/[fileId]/       Authenticated previews and downloads
+  api/search/              Private metadata index for local fuzzy search
+  api/notifications/       Private sharing notification inbox
 components/                Application and reusable UI components
 lib/
   actions/                 Authentication and file Server Actions
