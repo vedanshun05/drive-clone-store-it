@@ -99,3 +99,19 @@ The local production build was exercised in Chromium with disposable files and a
 The first live follow-up found cached page switches at 35–43 ms and warm local search at 8–9 ms without a query POST, but eagerly prefetching every sidebar page caused a 5,139 ms first-navigation spike. Explicit full-route prefetching was removed to avoid that startup burst; the loading boundary and 30-second client reuse remain. The Shared files navigation icon also received a monochrome, correctly scaled version of the existing three-node share symbol, without changing the action-menu artwork.
 
 Background search-index and notification reads were moved to authenticated, non-cacheable GET endpoints (`/api/search` and `/api/notifications`). This keeps periodic reads out of Next.js's Server Action queue, while sharing and read acknowledgements continue to use guarded Server Actions. Six additional regression cases cover the new endpoints' authentication, private cache headers, and safe outage responses.
+
+### Final deployed measurements
+
+Application revision: `08c5fe5`. The final check used the same Chromium session, deployment hostname, and two disposable file fixtures as the baseline. Measurements include automation overhead and describe this small account workload, rather than a load test or Core Web Vitals score.
+
+| Interaction                                    | Before                                         | After                                      |
+| ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------ |
+| First navigation to another page               | 1,811–3,274 ms across the baseline transitions | 465 ms to Media; 810 ms to Dashboard       |
+| Revisit with the browser route cache populated | 1,859–3,153 ms in the baseline second pass     | 24–39 ms                                   |
+| Suggestions after the metadata index is ready  | 1,791–2,293 ms across three queries            | 6–8 ms across three queries                |
+| Requests issued for each measured search query | One Server Action POST                         | Zero query requests; matching runs locally |
+| Server execution region from response headers  | `iad1` (US East)                               | `sin1` (Singapore)                         |
+
+The metadata index still needs one authenticated background fetch initially; the 6–8 ms figure describes subsequent local matching. First page loads and uncached data remain network-dependent. The eager-prefetch spike did not recur in the final navigation sample after the startup burst and background Action queue contention were removed. All performance fixtures and their temporary owner profile were cleaned up.
+
+The project description is set on GitHub. Current validation comprises **78 regression cases across seven test files**, a successful Next.js 16.4.3 production build, TypeScript, zero ESLint errors, and a zero-vulnerability dependency audit. Original style warnings are documented separately above. The shared navigation icon was visually checked against the deployed sidebar, using the same three-node symbol at the navigation's monochrome color and scale. Its three nodes are filled, inheriting the same gray inactive and white selected appearance as the other navigation icons.
