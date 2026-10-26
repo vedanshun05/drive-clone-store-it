@@ -75,7 +75,6 @@ const Dashboard = async () => {
               {group.shared && (
                 <Link
                   href="/shared"
-                  prefetch
                   className="shrink-0 text-sm font-semibold text-brand"
                 >
                   View all

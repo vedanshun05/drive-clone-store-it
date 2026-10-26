@@ -47,7 +47,7 @@ Screenshots show the deployed application. Personal account details are hidden; 
 - **Fast fuzzy search** — typo-tolerant filename suggestions run locally with Fuse.js against an authenticated metadata index; sorting supports creation date, name, and size.
 - **Shared-file workspace** — a dedicated Shared files page, a separate dashboard section, and All files / My files / Shared with me filters on category pages.
 - **Storage visibility** — usage summaries by file type, recent uploads, and a radial usage visualization.
-- **Responsive interface** — desktop sidebar navigation and a mobile drawer with search, upload, and notification access. Route prefetching and loading states keep navigation responsive.
+- **Responsive interface** — desktop sidebar navigation and a mobile drawer with search, upload, and notification access. Loading states and short-lived route reuse keep navigation responsive.
 - **Repeatable backend setup** — a resumable provisioning script creates and verifies the database, relationships, indexes, and private bucket.
 
 ## Architecture

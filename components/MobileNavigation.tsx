@@ -88,7 +88,6 @@ const MobileNavigation = ({
                     <Link
                       key={name}
                       href={url}
-                      prefetch
                       aria-label={name}
                       onClick={() => setOpen(false)}
                       className="lg:w-full"
