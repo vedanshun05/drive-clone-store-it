@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function ErrorPage({
-  unstable_retry: retry,
-}: {
-  unstable_retry: () => void;
-}) {
+export default function ErrorPage({ retry }: { retry: () => void }) {
   return (
     <main
       className="flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center"

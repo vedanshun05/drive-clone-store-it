@@ -59,3 +59,11 @@ test("server and browser timestamps use an explicit, consistent UTC representati
   );
   assert.equal(utils.formatDateTime("invalid"), "—");
 });
+
+test("rename drafts exclude only the stored extension", () => {
+  assert.equal(utils.getFileBaseName("archive.tar.zip", "zip"), "archive.tar");
+  assert.equal(utils.getFileBaseName("photo.PNG", "png"), "photo");
+  assert.equal(utils.getFileBaseName("README", ""), "README");
+  assert.equal(utils.getFileBaseName(".env", ""), ".env");
+  assert.equal(utils.getFileBaseName("mismatched", "txt"), "mismatched");
+});

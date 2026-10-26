@@ -2,57 +2,21 @@
 
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-import { getFiles } from "@/lib/actions/file.actions";
+import { useState } from "react";
+import { useFileSearch } from "@/components/FileSearchProvider";
 import Thumbnail from "@/components/Thumbnail";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useDebounce } from "use-debounce";
-import { toast } from "sonner";
 
 const Search = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("query") || "";
   const [query, setQuery] = useState(searchQuery);
-  const [results, setResults] = useState<AppwriteFile[]>([]);
+  const { search, ensureFresh, ready, loading, error } = useFileSearch();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const path = usePathname();
-  const [debouncedQuery] = useDebounce(query, 300);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchFiles = async () => {
-      if (debouncedQuery.length === 0) {
-        setResults([]);
-        setOpen(false);
-        return;
-      }
-
-      try {
-        const files = await getFiles({
-          types: [],
-          searchText: debouncedQuery,
-          limit: 10,
-        });
-        if (!cancelled) {
-          setResults(files.rows);
-          setOpen(true);
-        }
-      } catch {
-        if (!cancelled) {
-          setResults([]);
-          setOpen(false);
-          toast.error("Unable to search files. Please try again.");
-        }
-      }
-    };
-
-    fetchFiles();
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedQuery]);
+  const results = query.trim() && ready ? search(query) : [];
 
   // Clear the input when the URL `?query` param is removed (e.g. navigation).
   // Done during render (not an effect) per React 19 guidance to avoid the
@@ -63,11 +27,10 @@ const Search = () => {
     setQuery(searchQuery);
   }
 
-  const handleClickItem = (file: AppwriteFile) => {
+  const handleClickItem = (file: FileSearchEntry) => {
     setOpen(false);
-    setResults([]);
 
-    const params = new URLSearchParams({ query });
+    const params = new URLSearchParams({ query: file.name });
     router.push(
       `/${file.type === "video" || file.type === "audio" ? "media" : file.type + "s"}?${params}`,
     );
@@ -91,12 +54,18 @@ const Search = () => {
           value={query}
           placeholder="Search..."
           aria-label="Search files"
+          onFocus={() => {
+            ensureFresh();
+            if (query.trim()) setOpen(true);
+          }}
           onKeyDown={(event) => {
             if (event.key === "Escape") setOpen(false);
           }}
           className="search-input"
           onChange={(e) => {
             setQuery(e.target.value);
+            setOpen(Boolean(e.target.value.trim()));
+            ensureFresh();
             if (!e.target.value && searchQuery) {
               const params = new URLSearchParams(searchParams.toString());
               params.delete("query");
@@ -119,7 +88,7 @@ const Search = () => {
                       <Thumbnail
                         type={file.type}
                         extension={file.extension}
-                        url={file.url}
+                        preview={false}
                         className="size-9 min-w-9"
                       />
                       <p className="subtitle-2 line-clamp-1 text-light-100">
@@ -135,7 +104,13 @@ const Search = () => {
                 </li>
               ))
             ) : (
-              <p className="empty-result">No files found</p>
+              <li className="empty-result" role="status">
+                {!ready && loading
+                  ? "Loading your file index…"
+                  : error
+                    ? "Unable to refresh files. Focus the search to retry."
+                    : "No files found"}
+              </li>
             )}
           </ul>
         )}

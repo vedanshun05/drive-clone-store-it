@@ -24,5 +24,7 @@ export const appwriteConfig = {
   databaseId,
   usersTableId,
   filesTableId,
+  notificationsTableId:
+    process.env.NEXT_PUBLIC_APPWRITE_NOTIFICATIONS_TABLE_ID || "notifications",
   bucketId,
 };

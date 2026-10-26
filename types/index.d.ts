@@ -17,7 +17,10 @@ declare interface UploadFileProps {
   accountId: string;
   path: string;
 }
+declare type FileScope = "all" | "owned" | "shared";
+
 declare interface GetFilesProps {
+  scope?: FileScope;
   types?: FileType[];
   searchText?: string;
   sort?: string;
@@ -99,3 +102,22 @@ declare interface TotalFileSpaceUsed {
   used: number;
   all: number;
 }
+
+declare interface ShareNotification {
+  id: string;
+  fileName: string;
+  ownerName: string;
+  url: string;
+  eventAt: string;
+  read: boolean;
+}
+
+declare interface ShareInbox {
+  notifications: ShareNotification[];
+  unreadCount: number;
+}
+
+declare type FileSearchEntry = Pick<
+  AppwriteFile,
+  "$id" | "name" | "type" | "extension" | "url" | "$createdAt"
+>;

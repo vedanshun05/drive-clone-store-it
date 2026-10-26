@@ -10,6 +10,13 @@ export const parseStringify = (value: unknown) =>
 
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 
+export const getFileBaseName = (name: string, extension: string) => {
+  const suffix = extension ? `.${extension}` : "";
+  return suffix && name.toLowerCase().endsWith(suffix.toLowerCase())
+    ? name.slice(0, -suffix.length)
+    : name;
+};
+
 export const getFileType = (
   fileName: string,
 ): { type: FileType; extension: string } => {

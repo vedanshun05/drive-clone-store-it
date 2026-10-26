@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { MAX_FILE_SIZE, sortTypes } from "@/constants";
 import { z } from "zod";
+import { prepareShareNotifications } from "@/lib/notifications";
 
 const requireUser = async () => {
   const user = await getCurrentUser();
@@ -117,7 +118,7 @@ export const uploadFile = async ({ file, path }: UploadFileProps) => {
         handleError(error, "Failed to create file document");
       });
 
-    revalidatePath(path);
+    revalidatePath("/", "layout");
     return parseStringify(newFile);
   } catch (error) {
     handleError(error, "Failed to upload file");
@@ -130,12 +131,22 @@ const createQueries = (
   searchText: string,
   sort: string,
   limit?: number,
+  scope: FileScope = "all",
 ) => {
+  const accessQuery =
+    scope === "owned"
+      ? Query.equal("owner", [currentUser.$id])
+      : scope === "shared"
+        ? Query.and([
+            Query.contains("users", [currentUser.email]),
+            Query.notEqual("owner", [currentUser.$id]),
+          ])
+        : Query.or([
+            Query.equal("owner", [currentUser.$id]),
+            Query.contains("users", [currentUser.email]),
+          ]);
   const queries = [
-    Query.or([
-      Query.equal("owner", [currentUser.$id]),
-      Query.contains("users", [currentUser.email]),
-    ]),
+    accessQuery,
     // TablesDB returns relationship columns as bare IDs by default; select
     // nested owner fields so `file.owner` comes back as the populated user row.
     Query.select(["*", "owner.*"]),
@@ -163,6 +174,7 @@ export const getFiles = async ({
   searchText = "",
   sort = "$createdAt-desc",
   limit,
+  scope = "all",
 }: GetFilesProps = {}) => {
   const { tablesDB } = await createAdminClient();
 
@@ -170,7 +182,15 @@ export const getFiles = async ({
     const currentUser = await getCurrentUser();
     if (!currentUser) throw new Error("User not found");
 
-    const queries = createQueries(currentUser, types, searchText, sort, limit);
+    z.enum(["all", "owned", "shared"]).parse(scope);
+    const queries = createQueries(
+      currentUser,
+      types,
+      searchText,
+      sort,
+      limit,
+      scope,
+    );
 
     if (!limit) return parseStringify(await listAllFiles(queries));
 
@@ -204,7 +224,7 @@ export const renameFile = async ({ fileId, name, path }: RenameFileProps) => {
       data: { name: newName },
     });
 
-    revalidatePath(path);
+    revalidatePath("/", "layout");
     return parseStringify(updatedFile);
   } catch (error) {
     handleError(error, "Failed to rename file");
@@ -216,7 +236,7 @@ export const updateFileUsers = async ({
   emails,
   path,
 }: UpdateFileUsersProps) => {
-  await getOwnedFile(fileId);
+  const file = await getOwnedFile(fileId);
   const normalizedEmails = [
     ...new Set(
       emails.map((email) => email.trim().toLowerCase()).filter(Boolean),
@@ -226,6 +246,7 @@ export const updateFileUsers = async ({
   const { tablesDB } = await createAdminClient();
 
   try {
+    await prepareShareNotifications(file, normalizedEmails);
     const updatedFile = await tablesDB.updateRow({
       databaseId: appwriteConfig.databaseId,
       tableId: appwriteConfig.filesTableId,
@@ -233,7 +254,7 @@ export const updateFileUsers = async ({
       data: { users: normalizedEmails },
     });
 
-    revalidatePath(path);
+    revalidatePath("/", "layout");
     return parseStringify(updatedFile);
   } catch (error) {
     handleError(error, "Failed to update file users");
@@ -260,7 +281,7 @@ export const deleteFile = async ({ fileId, path }: DeleteFileProps) => {
       rowId: fileId,
     });
 
-    revalidatePath(path);
+    revalidatePath("/", "layout");
     return parseStringify({ status: "success" });
   } catch (error) {
     handleError(error, "Failed to delete file");
@@ -303,4 +324,34 @@ export async function getTotalSpaceUsed() {
   } catch (error) {
     handleError(error, "Error calculating total space used");
   }
+}
+
+export async function getFileSearchIndex(): Promise<FileSearchEntry[]> {
+  const user = await requireUser();
+  const files = await listAllFiles([
+    Query.or([
+      Query.equal("owner", [user.$id]),
+      Query.contains("users", [user.email]),
+    ]),
+    Query.orderAsc("$id"),
+    Query.select([
+      "$id",
+      "name",
+      "type",
+      "extension",
+      "bucketFileId",
+      "$createdAt",
+    ]),
+  ]);
+  return files.rows.map((row) => {
+    const file = row as unknown as AppwriteFile;
+    return {
+      $id: file.$id,
+      name: file.name,
+      type: file.type,
+      extension: file.extension,
+      url: constructFileUrl(file.bucketFileId),
+      $createdAt: file.$createdAt,
+    };
+  });
 }

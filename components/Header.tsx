@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Notifications from "@/components/Notifications";
 import { Button } from "@/components/ui/button";
 import Search from "@/components/Search";
 import FileUploader from "@/components/FileUploader";
@@ -15,6 +16,7 @@ const Header = ({
     <header className="header">
       <Search />
       <div className="header-wrapper">
+        <Notifications />
         <FileUploader ownerId={userId} accountId={accountId} />
         <form
           action={async () => {

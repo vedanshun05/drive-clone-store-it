@@ -1,5 +1,6 @@
 import Card from "@/components/Card";
 import Sort from "@/components/Sort";
+import FileScopeFilter from "@/components/FileScopeFilter";
 import { getFiles } from "@/lib/actions/file.actions";
 import { getFileTypesParams, convertFileSize } from "@/lib/utils";
 import { notFound, redirect } from "next/navigation";
@@ -10,7 +11,8 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/sign-in");
   const type = ((await params)?.type as string) || "";
-  if (!["documents", "images", "media", "others"].includes(type)) notFound();
+  if (!["documents", "images", "media", "others", "shared"].includes(type))
+    notFound();
   const queryParams = await searchParams;
   const searchText =
     typeof queryParams?.query === "string" ? queryParams.query : "";
@@ -18,8 +20,14 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
     sortTypes.find((option) => option.value === queryParams?.sort)?.value ||
     sortTypes[0].value;
 
-  const types = getFileTypesParams(type) as FileType[];
-  const files = await getFiles({ types, searchText, sort });
+  const isSharedPage = type === "shared";
+  const scope: FileScope = isSharedPage
+    ? "shared"
+    : queryParams?.scope === "owned" || queryParams?.scope === "shared"
+      ? queryParams.scope
+      : "all";
+  const types = isSharedPage ? [] : (getFileTypesParams(type) as FileType[]);
+  const files = await getFiles({ types, searchText, sort, scope });
 
   const totalSize = files?.rows?.reduce(
     (acc: number, file: AppwriteFile) => acc + file.size,
@@ -29,16 +37,17 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
   return (
     <div className="page-container">
       <section className="w-full">
-        <h1 className="h1 capitalize">{type}</h1>
+        <h1 className="h1 capitalize">
+          {isSharedPage ? "Shared files" : type}
+        </h1>
 
-        <div className="total-size-section">
+        <div className="mt-3 flex flex-col gap-4">
           <p className="body-1">
             Total: <span className="h5">{convertFileSize(totalSize ?? 0)}</span>
           </p>
 
-          <div className="sort-container">
-            <p className="hidden body-1 text-light-200 sm:block">Sort by:</p>
-
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            {!isSharedPage && <FileScopeFilter />}
             <Sort />
           </div>
         </div>
@@ -51,7 +60,13 @@ const Page = async ({ params, searchParams }: SearchParamProps) => {
           ))}
         </section>
       ) : (
-        <p className="empty-list">No files uploaded</p>
+        <p className="empty-list">
+          {searchText
+            ? "No files match your search"
+            : scope === "shared"
+              ? "No files shared with you"
+              : "No files uploaded"}
+        </p>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ export const navItems = [
   { name: "Images", icon: "/assets/icons/images.svg", url: "/images" },
   { name: "Media", icon: "/assets/icons/video.svg", url: "/media" },
   { name: "Others", icon: "/assets/icons/others.svg", url: "/others" },
+  { name: "Shared files", icon: "/assets/icons/share.svg", url: "/shared" },
 ];
 
 export const actionsDropdownItems = [

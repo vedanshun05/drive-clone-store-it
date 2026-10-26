@@ -47,6 +47,7 @@ function fileHarness({
   owner = "owner",
   rows = [],
   storageError,
+  notificationError,
 } = {}) {
   const calls = [];
   const tablesDB = {
@@ -103,6 +104,12 @@ function fileHarness({
     "@/lib/appwrite/config": { appwriteConfig: config },
     "@/lib/actions/user.actions": { getCurrentUser: async () => user },
     "@/constants": constants,
+    "@/lib/notifications": {
+      prepareShareNotifications: async (...args) => {
+        calls.push(["prepare-notifications", ...args]);
+        if (notificationError) throw notificationError;
+      },
+    },
     "@/lib/utils": utils,
     "next/cache": { revalidatePath: () => {} },
   });
@@ -365,5 +372,134 @@ test("sign-out clears the local cookie even if session revocation fails", async 
   assert.equal(
     calls.some(([operation]) => operation === "delete-cookie"),
     true,
+  );
+});
+
+test("sharing prepares recipient notifications before updating access", async () => {
+  const { actions, calls } = fileHarness();
+  await actions.updateFileUsers({
+    fileId: "file",
+    emails: [" FRIEND@example.com "],
+    path: "/",
+  });
+  const prepared = calls.find(
+    ([operation]) => operation === "prepare-notifications",
+  );
+  assert.deepEqual(prepared[2], ["friend@example.com"]);
+  assert.ok(
+    calls.findIndex(([operation]) => operation === "prepare-notifications") <
+      calls.findIndex(([operation]) => operation === "updateRow"),
+  );
+});
+
+test("notification preparation failure leaves file sharing unchanged for retry", async () => {
+  const { actions, calls } = fileHarness({
+    notificationError: new Error("notifications unavailable"),
+  });
+  await assert.rejects(
+    actions.updateFileUsers({
+      fileId: "file",
+      emails: ["friend@example.com"],
+      path: "/",
+    }),
+    /notifications unavailable/,
+  );
+  assert.equal(
+    calls.some(([operation]) => operation === "updateRow"),
+    false,
+  );
+});
+
+test("search index requires a session and returns no data to anonymous callers", async () => {
+  const { actions, calls } = fileHarness({ user: null });
+  await assert.rejects(actions.getFileSearchIndex(), /not authenticated/);
+  assert.equal(calls.length, 0);
+});
+
+test("search index checks owner/shared access, paginates, and exposes only search metadata", async () => {
+  const rows = Array.from({ length: 101 }, (_, i) => ({
+    $id: `row-${i}`,
+    name: `Brief ${i}.txt`,
+    type: "document",
+    extension: "txt",
+    bucketFileId: `bucket-${i}`,
+    $createdAt: "2026-10-26T00:00:00Z",
+    users: ["private@example.com"],
+    owner: { email: "private@example.com" },
+  }));
+  const { actions, calls } = fileHarness({ rows });
+  const index = await actions.getFileSearchIndex();
+  assert.equal(index.length, 101);
+  assert.deepEqual(
+    Object.keys(index[0]).sort(),
+    ["$id", "$createdAt", "name", "type", "extension", "url"].sort(),
+  );
+  const query = calls
+    .find(([op]) => op === "listRows")[1]
+    .queries.map((q) => JSON.parse(q));
+  const acl = query.find((q) => q.method === "or");
+  assert.ok(
+    acl.values.some(
+      (q) => q.attribute === "owner" && q.values.includes("owner"),
+    ),
+  );
+  assert.ok(
+    acl.values.some(
+      (q) => q.attribute === "users" && q.values.includes("owner@example.com"),
+    ),
+  );
+});
+
+test("owned-only listings use the signed-in owner rather than shared email access", async () => {
+  const { actions, calls } = fileHarness();
+  await actions.getFiles({ scope: "owned" });
+  const queries = calls
+    .find(([op]) => op === "listRows")[1]
+    .queries.map((q) => JSON.parse(q));
+  assert.ok(
+    queries.some(
+      (q) =>
+        q.method === "equal" &&
+        q.attribute === "owner" &&
+        q.values.includes("owner"),
+    ),
+  );
+  assert.equal(
+    queries.some((q) => q.method === "or"),
+    false,
+  );
+});
+
+test("shared-only listings require the recipient email and exclude their own uploads", async () => {
+  const { actions, calls } = fileHarness();
+  await actions.getFiles({ scope: "shared" });
+  const acl = calls
+    .find(([op]) => op === "listRows")[1]
+    .queries.map((q) => JSON.parse(q))
+    .find((q) => q.method === "and");
+  assert.ok(
+    acl.values.some(
+      (q) =>
+        q.method === "contains" &&
+        q.attribute === "users" &&
+        q.values.includes("owner@example.com"),
+    ),
+  );
+  assert.ok(
+    acl.values.some(
+      (q) =>
+        q.method === "notEqual" &&
+        q.attribute === "owner" &&
+        q.values.includes("owner"),
+    ),
+  );
+});
+
+test("unrecognized visibility scopes are rejected before listing metadata", async () => {
+  const { actions, calls } = fileHarness();
+  await assert.rejects(actions.getFiles({ scope: "everyone" }));
+  assert.equal(
+    calls.some(([op]) => op === "listRows"),
+    false,
   );
 });

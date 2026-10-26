@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { cache } from "react";
 
 const normalizeEmail = (email: string) =>
   z.email().parse(email.trim().toLowerCase());
@@ -111,7 +112,9 @@ export const verifySecret = async ({
   }
 };
 
-export const getCurrentUser = async () => {
+// React cache deduplicates identity lookups within one server render only.
+// It never shares an authenticated user across requests.
+const getCachedCurrentUser = cache(async () => {
   if (!(await cookies()).get("appwrite-session")?.value) return null;
 
   try {
@@ -133,7 +136,9 @@ export const getCurrentUser = async () => {
     if ((error as { code?: number }).code === 401) return null;
     throw error;
   }
-};
+});
+
+export const getCurrentUser = async () => getCachedCurrentUser();
 
 export const signOutUser = async () => {
   try {

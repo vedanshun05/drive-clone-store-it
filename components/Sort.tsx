@@ -14,6 +14,9 @@ const Sort = () => {
   const path = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const selected =
+    sortTypes.find((sort) => sort.value === searchParams.get("sort")) ||
+    sortTypes[0];
 
   const handleSort = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -22,15 +25,9 @@ const Sort = () => {
   };
 
   return (
-    <Select
-      onValueChange={handleSort}
-      value={
-        sortTypes.find((sort) => sort.value === searchParams.get("sort"))
-          ?.value || sortTypes[0].value
-      }
-    >
-      <SelectTrigger className="sort-select">
-        <SelectValue placeholder={sortTypes[0].value} />
+    <Select onValueChange={handleSort} value={selected.value}>
+      <SelectTrigger aria-label="Sort files" className="sort-select">
+        <SelectValue>{selected.label}</SelectValue>
       </SelectTrigger>
       <SelectContent className="sort-select-content">
         {sortTypes.map((sort) => (

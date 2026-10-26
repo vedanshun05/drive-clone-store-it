@@ -35,6 +35,8 @@ export function readConfig(env = process.env) {
     databaseId: required("NEXT_PUBLIC_APPWRITE_DATABASE_ID"),
     usersTableId: required("NEXT_PUBLIC_APPWRITE_USERS_TABLE_ID"),
     filesTableId: required("NEXT_PUBLIC_APPWRITE_FILES_TABLE_ID"),
+    notificationsTableId:
+      env.NEXT_PUBLIC_APPWRITE_NOTIFICATIONS_TABLE_ID || "notifications",
     bucketId: required("NEXT_PUBLIC_APPWRITE_BUCKET_ID"),
   };
 }
@@ -84,6 +86,7 @@ export async function provision(
     }
   };
   const databaseId = config.databaseId;
+  const notificationsTableId = config.notificationsTableId || "notifications";
   await ensure(
     "database",
     () => tablesDB.get({ databaseId }),
@@ -92,6 +95,7 @@ export async function provision(
   for (const [tableId, name] of [
     [config.usersTableId, "Users"],
     [config.filesTableId, "Files"],
+    [notificationsTableId, "Notifications"],
   ]) {
     const params = { databaseId, tableId };
     const table = await ensure(
@@ -155,9 +159,22 @@ export async function provision(
       },
     },
   ];
+  const notificationColumns = [
+    {
+      method: "createEmailColumn",
+      params: { key: "recipient", required: true },
+    },
+    varchar("fileId", 36),
+    { method: "createBooleanColumn", params: { key: "read", required: true } },
+    {
+      method: "createDatetimeColumn",
+      params: { key: "eventAt", required: true },
+    },
+  ];
   for (const [tableId, columns] of [
     [config.usersTableId, userColumns],
     [config.filesTableId, fileColumns],
+    [notificationsTableId, notificationColumns],
   ]) {
     for (const { method, params } of columns) {
       const address = { databaseId, tableId, key: params.key };
@@ -195,6 +212,13 @@ export async function provision(
     }
   }
   const indexes = [
+    [
+      notificationsTableId,
+      "recipient_filter",
+      TablesDBIndexType.Key,
+      ["recipient"],
+    ],
+    [notificationsTableId, "event_sort", TablesDBIndexType.Key, ["eventAt"]],
     [config.usersTableId, "email_unique", TablesDBIndexType.Unique, ["email"]],
     [
       config.usersTableId,
@@ -278,6 +302,27 @@ export async function provision(
       ],
     });
   }
+  await tablesDB.listRows({
+    databaseId,
+    tableId: config.filesTableId,
+    queries: [
+      Query.and([
+        Query.contains("users", ["setup-probe@example.invalid"]),
+        Query.notEqual("owner", ["setup_probe"]),
+      ]),
+      Query.select(["*", "owner.*"]),
+      Query.limit(1),
+    ],
+  });
+  await tablesDB.listRows({
+    databaseId,
+    tableId: notificationsTableId,
+    queries: [
+      Query.equal("recipient", "setup-probe@example.invalid"),
+      Query.orderDesc("eventAt"),
+      Query.limit(1),
+    ],
+  });
   log(
     `Verified StoreIt backend in project ${config.projectId}. No accounts or files were created.`,
   );

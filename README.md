@@ -43,9 +43,11 @@ Screenshots show the deployed application. Personal account details are hidden; 
 - **File management** — drag-and-drop uploads, category browsing, previews, downloads, renaming, file details, and deletion.
 - **Private access** — an authenticated file route checks ownership or the shared-email list before serving content. Appwrite buckets and tables have no direct client permissions.
 - **Owner-controlled sharing** — add or remove shared email addresses; mutation permissions are checked independently on the server.
-- **Search and sorting** — debounced filename search and sorting by creation date, name, or size.
+- **Sharing notifications** — an in-app bell inbox, unread counts, file links, and persistent read status. New shares refresh within 30 seconds while the tab is visible, on focus, or manually; revoked shares disappear.
+- **Fast fuzzy search** — typo-tolerant filename suggestions run locally with Fuse.js against an authenticated metadata index; sorting supports creation date, name, and size.
+- **Shared-file workspace** — a dedicated Shared files page, a separate dashboard section, and All files / My files / Shared with me filters on category pages.
 - **Storage visibility** — usage summaries by file type, recent uploads, and a radial usage visualization.
-- **Responsive interface** — desktop sidebar navigation and a mobile drawer with search and upload access.
+- **Responsive interface** — desktop sidebar navigation and a mobile drawer with search, upload, and notification access. Route prefetching and loading states keep navigation responsive.
 - **Repeatable backend setup** — a resumable provisioning script creates and verifies the database, relationships, indexes, and private bucket.
 
 ## Architecture
@@ -69,7 +71,7 @@ flowchart LR
     Files -->|Read authorized bytes| Storage
 ```
 
-The browser receives an HTTP-only session cookie after OTP verification. Server-side Appwrite clients use that session to establish identity; administrative requests use a scoped server key. File mutation actions derive identity from the session rather than trusting owner IDs submitted by the browser.
+The browser receives an HTTP-only session cookie after OTP verification. Server-side Appwrite clients use that session to establish identity; administrative requests use a scoped server key. File mutation actions derive identity from the session rather than trusting owner IDs submitted by the browser. Repeated identity checks are deduplicated within a single server render using React cache, without sharing authenticated identities across requests.
 
 The `/api/files/[fileId]` route authorizes each read and returns private, non-cacheable responses. HTML and SVG uploads are downloaded as attachments. Private image previews bypass Next.js image optimization so requests retain the browser’s session cookie.
 
@@ -81,6 +83,7 @@ The `/api/files/[fileId]` route authorizes each read and returns private, non-ca
 | UI                 | Tailwind CSS 4, Radix UI / shadcn components, Lucide         |
 | Forms              | React Hook Form, Zod                                         |
 | File selection     | React Dropzone                                               |
+| Filename search    | Fuse.js, in-memory metadata index                            |
 | Data visualization | Recharts                                                     |
 | Backend            | Appwrite Auth, TablesDB, Storage; Node.js SDK                |
 | Hosting            | Vercel, Node.js runtime                                      |
@@ -111,17 +114,18 @@ Open **http://localhost:3000**. Create an account and verify the code sent to yo
 
 ### Environment variables
 
-| Variable                              | Purpose                                             |
-| ------------------------------------- | --------------------------------------------------- |
-| `NEXT_PUBLIC_APPWRITE_ENDPOINT`       | Project API endpoint, including `/v1`               |
-| `NEXT_PUBLIC_APPWRITE_PROJECT_ID`     | Appwrite project ID                                 |
-| `NEXT_PUBLIC_APPWRITE_PROJECT_NAME`   | Optional descriptive project name                   |
-| `NEXT_PUBLIC_APPWRITE_DATABASE_ID`    | Database ID; default `store_it`                     |
-| `NEXT_PUBLIC_APPWRITE_USERS_TABLE_ID` | Profile table ID; default `users`                   |
-| `NEXT_PUBLIC_APPWRITE_FILES_TABLE_ID` | File metadata table ID; default `files`             |
-| `NEXT_PUBLIC_APPWRITE_BUCKET_ID`      | Storage bucket ID; default `store_it_files`         |
-| `NEXT_APPWRITE_SECRET_KEY`            | Private runtime API key                             |
-| `APPWRITE_SETUP_KEY`                  | Optional private provisioning key; local setup only |
+| Variable                                      | Purpose                                                 |
+| --------------------------------------------- | ------------------------------------------------------- |
+| `NEXT_PUBLIC_APPWRITE_ENDPOINT`               | Project API endpoint, including `/v1`                   |
+| `NEXT_PUBLIC_APPWRITE_PROJECT_ID`             | Appwrite project ID                                     |
+| `NEXT_PUBLIC_APPWRITE_PROJECT_NAME`           | Optional descriptive project name                       |
+| `NEXT_PUBLIC_APPWRITE_DATABASE_ID`            | Database ID; default `store_it`                         |
+| `NEXT_PUBLIC_APPWRITE_USERS_TABLE_ID`         | Profile table ID; default `users`                       |
+| `NEXT_PUBLIC_APPWRITE_FILES_TABLE_ID`         | File metadata table ID; default `files`                 |
+| `NEXT_PUBLIC_APPWRITE_NOTIFICATIONS_TABLE_ID` | Optional notification table ID; default `notifications` |
+| `NEXT_PUBLIC_APPWRITE_BUCKET_ID`              | Storage bucket ID; default `store_it_files`             |
+| `NEXT_APPWRITE_SECRET_KEY`                    | Private runtime API key                                 |
+| `APPWRITE_SETUP_KEY`                          | Optional private provisioning key; local setup only     |
 
 Never commit `.env.local`, expose API keys in client code, or prefix a secret with `NEXT_PUBLIC_`. The example environment file contains placeholders and resource IDs only.
 
@@ -150,9 +154,12 @@ The setup command can be rerun after an interruption. It creates missing resourc
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | `users`          | Full name, email, avatar URL, Appwrite account ID                                                    |
 | `files`          | Name, type, extension, size, file URL, owner relationship, account ID, shared emails, bucket file ID |
+| `notifications`  | Recipient email, file ID, event time, and read status; private server access only                    |
 | `store_it_files` | Private uploaded file contents                                                                       |
 
 `files.owner` is a many-to-one relationship to `users`. Unique indexes protect profile email/account IDs and storage-file metadata. Additional indexes support file filtering and sorting.
+
+When upgrading an existing backend, run `npm run backend:setup -- --apply` before deploying to create the notification table and indexes. New shares create notifications; older shares are not backfilled. Notifications are in-app only, with no email or operating-system push delivery.
 
 The provisioning key is used only for backend administration. Deploy the smaller runtime key to the application.
 
@@ -161,8 +168,9 @@ The provisioning key is used only for backend administration. Deploy the smaller
 1. Import this repository as a **Next.js** project.
 2. Use the repository root, `master` as the production branch, `npm run build` as the build command, and Next.js’s default output directory.
 3. Add the application variables from `.env.example` to the desired Vercel environments. Keep `APPWRITE_SETUP_KEY` local; deploy only the runtime key.
-4. Deploy, then assign your production domains in the Vercel project’s domain settings.
-5. Verify sign-up, OTP delivery, and authenticated file operations on the deployed domain.
+4. Keep Vercel Functions close to your Appwrite database. This repository uses Singapore (`sin1`) in `vercel.json` for its Singapore Appwrite endpoint; change it if your backend is elsewhere.
+5. Deploy, then assign your production domains in the Vercel project’s domain settings.
+6. Verify sign-up, OTP delivery, and authenticated file operations on the deployed domain.
 
 This application needs a **Node.js runtime** for Appwrite and Server Actions. Static-export hosting does not support its backend features.
 
@@ -178,7 +186,7 @@ npm run build
 npm start
 ```
 
-The automated tests use mocked Appwrite and Next.js adapters and do not modify production accounts or files. They cover authentication guards, ownership checks, trusted upload identity, filename handling, sharing validation, storage pagination, session behavior, private-file delivery, and repeatable backend provisioning.
+The automated tests use mocked Appwrite and Next.js adapters and do not modify production accounts or files. They cover authentication guards, ownership checks, trusted upload identity, filename handling, sharing validation, notification authorization/read state, storage pagination, session behavior, private-file delivery, and repeatable backend provisioning.
 
 See **[the verification record](docs/VERIFICATION.md)** for the live walkthrough, tested viewport sizes, known limits, and remaining checks.
 
@@ -217,6 +225,7 @@ docs/                      Screenshots and verification notes
 
 - **4 MiB per file.** Uploads pass through Server Actions; this limit leaves space below Vercel’s request-body ceiling. Raising Next.js’s limit alone does not increase Vercel’s platform limit. Larger uploads need a direct-to-storage flow.
 - **2 GiB dashboard reference.** The usage chart visualizes storage against 2 GiB. A total per-account quota is not currently enforced; the per-file limit is enforced on both the client and server.
+- **Search metadata stays in session memory.** The index refreshes every 30 seconds in visible tabs, on focus, and after file mutations. Navigation reuses each browser’s route cache for up to 30 seconds. File contents are authorized on every request, even if an old filename remains visible briefly.
 - **Sharing grants read access.** Shared recipients must have an account with the matching email. Only the owner can rename, change sharing, or delete a file.
 - **Upload progress can be hidden.** Dismissing a progress item does not cancel the server upload.
 - **Backend retention matters.** Review the Appwrite organization’s plan and inactivity policy. Keep database exports and file backups separately from the source repository.

@@ -54,6 +54,8 @@ function adapters() {
     "createEmailColumn",
     "createEnumColumn",
     "createIntegerColumn",
+    "createBooleanColumn",
+    "createDatetimeColumn",
     "createRelationshipColumn",
   ]) {
     tablesDB[method] = (params) =>
@@ -87,7 +89,13 @@ test("provisioning creates the schema and private bucket and checks app queries"
   assert.equal(fake.data.get("files.column.owner").relationType, "manyToOne");
   assert.equal(fake.data.get("files.column.users").array, true);
   assert.equal(fake.data.get("users.index.email_unique").type, "unique");
-  assert.equal(fake.queries.length, 3);
+  assert.equal(fake.queries.length, 5);
+  assert.equal(fake.data.get("table.notifications").rowSecurity, true);
+  assert.equal(fake.data.get("notifications.column.recipient").required, true);
+  assert.deepEqual(
+    fake.data.get("notifications.index.recipient_filter").columns,
+    ["recipient"],
+  );
   assert.equal(fake.mutations.includes("files.index.users_filter"), false);
 });
 

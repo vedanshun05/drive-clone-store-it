@@ -10,6 +10,7 @@ import { MAX_FILE_SIZE } from "@/constants";
 import { uploadFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { FILES_CHANGED_EVENT } from "@/components/FileSearchProvider";
 
 interface Props {
   ownerId: string;
@@ -62,6 +63,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
 
         try {
           await uploadFile({ file, ownerId, accountId, path });
+          window.dispatchEvent(new Event(FILES_CHANGED_EVENT));
         } catch {
           toast.error(`Unable to upload ${file.name}. Please try again.`);
         } finally {

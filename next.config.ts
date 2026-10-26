@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
+    // Per-browser route reuse only; authenticated server data stays uncached.
+    staleTimes: { dynamic: 30, static: 30 },
     serverActions: {
       bodySizeLimit: "4.5mb",
     },

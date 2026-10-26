@@ -2,7 +2,7 @@
 
 **Date:** 26 October 2026
 
-**Application revision:** `987db22`
+**Original walkthrough revision:** `987db22`
 
 **Primary site:** https://storeit.vedanshu.dev
 
@@ -69,9 +69,29 @@ Screenshots were taken from the deployed application with disposable sample file
 
 ## Scope and remaining work
 
-- Sharing controls, server authorization regression tests, and real database query behavior were checked. **A second recipient's authenticated browser session was not exercised.**
+- Sharing controls, server authorization regression tests, and real database query behavior were checked. **The project owner subsequently confirmed successful file sharing with another signed-in user.** This is owner-reported verification; the original automated walkthrough did not log in as that second account.
 - Live upload samples were small. Oversize rejection is covered by automated tests; large transfers, concurrent users, interrupted requests, and storage exhaustion were not load-tested.
 - A 4 MiB per-file limit is enforced. The 2 GiB dashboard denominator is a reference value, not an enforced per-account quota.
 - This walkthrough is not a penetration test or a measured Lighthouse/Core Web Vitals audit. Browser coverage was Chromium; Safari, Firefox, and assistive-technology testing remain useful follow-ups.
 - Review Appwrite retention/billing settings and establish backups, abuse controls, quota accounting, and monitoring before broader public use.
 - Original artwork provenance remains incomplete; see [third-party notices](../THIRD_PARTY_NOTICES.md) before redistributing those visuals.
+
+## Follow-up: sharing notifications and name-only renaming
+
+The project owner confirmed sharing works with another signed-in account. A private notification inbox now records new shares, supports unread counts and read acknowledgement, and checks the current file sharing list before showing each entry. Polling runs every 30 seconds in visible tabs, on returning to the tab, and on manual refresh. Existing shares are not backfilled, and no email or OS push messages are sent.
+
+The rename dialog now exposes only the base name and shows the extension as a read-only suffix. Extensionless files keep their full editable name. Server-side extension preservation continues to apply.
+
+The expanded regression suite contains **72 cases**, including new notification authentication, recipient ownership, unchanged-share deduplication, re-share reset, revoked/deleted-file filtering, pagination, failure ordering, and base-name extraction checks.
+
+## Follow-up: shared-file views and performance
+
+The dashboard's recent uploads query now selects only the signed-in owner's files. Incoming shares have their own dashboard section and `/shared` sidebar page. Category pages support All files, My files, and Shared with me filters independently of sorting; query and sort parameters are preserved when changing the filter. The server applies the visibility constraints using the authenticated identity.
+
+Baseline production measurements found navigation taking 1,811–3,274 ms over six transitions and search suggestions taking 1,791–2,293 ms over three queries. Vercel response headers showed US East (`iad1`) execution while Appwrite is in Singapore. Search used a 300 ms debounce followed by an authenticated backend request for every query, and repeated identity lookups added backend round trips.
+
+The fix uses Singapore Functions (`sin1`), request-scoped identity deduplication, full sidebar route prefetching, a loading boundary, and 30-second per-browser route reuse. File preview links use native anchors to avoid unnecessary route prefetches. Fuse.js computes suggestions from a private, session-memory metadata index instead of sending each query to the server. Selecting a fuzzy match navigates using its actual filename so the server's exact substring filter still finds the intended file.
+
+The application was upgraded to Next.js 16.4.3, with compatible dependency security fixes and the shadcn CLI moved to development dependencies. The new error boundary uses the installed version's `retry` API. Dependency audit reported zero vulnerabilities after the update.
+
+The local production build was exercised in Chromium with disposable files and a temporary audit-owner profile. Checks passed for notification unread/read persistence, unchanged-share behavior, re-sharing, revoked access, actual UI sharing creating an unread notification, dashboard separation of owned/shared files, shared-only filtering combined with sorting, read-only recipient actions, fuzzy-match navigation, and extension-preserving renaming. Mobile notification controls and category filters were checked from 320 to 1440 pixels with no horizontal overflow. The final walkthrough recorded no browser console or page errors. All temporary files, metadata, notification rows, and the audit profile were removed afterward; no additional authentication account or outgoing email was created.

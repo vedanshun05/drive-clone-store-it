@@ -7,6 +7,7 @@ interface Props {
   url?: string;
   imageClassName?: string;
   className?: string;
+  preview?: boolean;
 }
 
 export const Thumbnail = ({
@@ -15,8 +16,9 @@ export const Thumbnail = ({
   url = "",
   imageClassName,
   className,
+  preview = true,
 }: Props) => {
-  const isImage = type === "image" && extension !== "svg";
+  const isImage = preview && type === "image" && extension !== "svg";
 
   return (
     <figure className={cn("thumbnail", className)}>

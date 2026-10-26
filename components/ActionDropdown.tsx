@@ -19,7 +19,7 @@ import {
 import { useState } from "react";
 import Image from "next/image";
 import { actionsDropdownItems } from "@/constants";
-import { constructDownloadUrl } from "@/lib/utils";
+import { constructDownloadUrl, getFileBaseName } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +31,7 @@ import { usePathname } from "next/navigation";
 import { FileDetails } from "@/components/ActionsModalContent";
 import { ShareInput } from "@/components/ShareInput";
 import { toast } from "sonner";
+import { FILES_CHANGED_EVENT } from "@/components/FileSearchProvider";
 
 const ActionDropdown = ({
   file,
@@ -42,7 +43,7 @@ const ActionDropdown = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [action, setAction] = useState<ActionType | null>(null);
-  const [name, setName] = useState(file.name);
+  const [name, setName] = useState(getFileBaseName(file.name, file.extension));
   const [isLoading, setIsLoading] = useState(false);
   // Draft entries are separate from the canonical shared list, which can refresh
   // after an action while the dialog is open.
@@ -54,7 +55,7 @@ const ActionDropdown = ({
     setIsModalOpen(false);
     setIsDropdownOpen(false);
     setAction(null);
-    setName(file.name);
+    setName(getFileBaseName(file.name, file.extension));
     setEmails([]);
   };
 
@@ -64,7 +65,12 @@ const ActionDropdown = ({
 
     const actions = {
       rename: () =>
-        renameFile({ fileId: file.$id, name, extension: file.extension, path }),
+        renameFile({
+          fileId: file.$id,
+          name: file.extension ? `${name}.${file.extension}` : name,
+          extension: file.extension,
+          path,
+        }),
       share: () =>
         updateFileUsers({
           fileId: file.$id,
@@ -77,7 +83,10 @@ const ActionDropdown = ({
 
     try {
       const success = await actions[action.value as keyof typeof actions]();
-      if (success) closeAllModals();
+      if (success) {
+        closeAllModals();
+        window.dispatchEvent(new Event(FILES_CHANGED_EVENT));
+      }
     } catch {
       toast.error("Unable to update the file. Please try again.");
     } finally {
@@ -94,7 +103,10 @@ const ActionDropdown = ({
         emails: updatedEmails,
         path,
       });
-      if (success) closeAllModals();
+      if (success) {
+        closeAllModals();
+        window.dispatchEvent(new Event(FILES_CHANGED_EVENT));
+      }
     } catch {
       toast.error("Unable to remove this person. Please try again.");
     } finally {
@@ -117,12 +129,30 @@ const ActionDropdown = ({
             Details and actions for {file.name}.
           </DialogDescription>
           {value === "rename" && (
-            <Input
-              type="text"
-              className="rename-input-field"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  aria-label="File name"
+                  type="text"
+                  className="rename-input-field min-w-0"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                {file.extension && (
+                  <span
+                    aria-label="File extension"
+                    className="shrink-0 rounded-full bg-brand/10 px-3 py-2 text-sm text-brand"
+                  >
+                    .{file.extension}
+                  </span>
+                )}
+              </div>
+              {file.extension && (
+                <p className="text-left text-xs text-light-200">
+                  The file extension stays the same.
+                </p>
+              )}
+            </div>
           )}
           {value === "details" && <FileDetails file={file} />}
           {value === "share" && (
@@ -213,7 +243,7 @@ const ActionDropdown = ({
                   key={actionItem.value}
                   className="shad-dropdown-item"
                   onClick={() => {
-                    setName(file.name);
+                    setName(getFileBaseName(file.name, file.extension));
                     setEmails([]);
                     setAction(actionItem);
 
