@@ -78,7 +78,11 @@ export async function GET(
         "Content-Length": String(bytes.byteLength),
         "Content-Disposition": `${download ? "attachment" : "inline"}; filename="${fallback}"; filename*=UTF-8''${encodedName}`,
         "X-Content-Type-Options": "nosniff",
-        "Content-Security-Policy": "sandbox; default-src 'none'",
+        // Safe media types cannot execute uploaded scripts. Allow the browser's
+        // native image/media viewer to style and load its same-origin content.
+        "Content-Security-Policy": safeInline
+          ? "default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; frame-ancestors 'none'"
+          : "sandbox; default-src 'none'",
       },
     });
   } catch (error) {

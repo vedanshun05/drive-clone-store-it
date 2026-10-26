@@ -22,7 +22,7 @@ export const Thumbnail = ({
     <figure className={cn("thumbnail", className)}>
       <Image
         src={isImage ? url : getFileIcon(extension, type)}
-        alt="thumbnail"
+        alt=""
         width={100}
         height={100}
         unoptimized={isImage && url.startsWith("/api/files/")}

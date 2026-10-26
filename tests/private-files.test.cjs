@@ -133,6 +133,14 @@ test("download URLs use attachment disposition", async () => {
   );
 });
 
+test("native audio previews can load same-origin media while uploaded scripts remain blocked", async () => {
+  const response = await harness({ mimeType: "audio/x-wav" }).get();
+  const policy = response.headers.get("content-security-policy");
+  assert.match(policy, /media-src 'self'/);
+  assert.match(policy, /script-src 'none'/);
+  assert.equal(policy.includes("sandbox"), false);
+});
+
 for (const mimeType of [
   "text/html",
   "image/svg+xml",

@@ -119,12 +119,13 @@ export const formatDateTime = (isoString: string | null | undefined) => {
   if (!isoString) return "—";
 
   const date = new Date(isoString);
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
+  if (Number.isNaN(date.getTime())) return "—";
+  let hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
   const period = hours >= 12 ? "pm" : "am";
   hours = hours % 12 || 12;
-  const time = `${hours}:${minutes.toString().padStart(2, "0")}${period}`;
-  const day = date.getDate();
+  const time = `${hours}:${minutes.toString().padStart(2, "0")}${period} UTC`;
+  const day = date.getUTCDate();
   const monthNames = [
     "Jan",
     "Feb",
@@ -139,8 +140,8 @@ export const formatDateTime = (isoString: string | null | undefined) => {
     "Nov",
     "Dec",
   ];
-  const month = monthNames[date.getMonth()];
-  return `${time}, ${day} ${month}`;
+  const month = monthNames[date.getUTCMonth()];
+  return `${time}, ${day} ${month} ${date.getUTCFullYear()}`;
 };
 
 export const getFileIcon = (

@@ -51,3 +51,11 @@ test("file URLs route through application authorization", () => {
     "/api/files/file-1?download=1",
   );
 });
+
+test("server and browser timestamps use an explicit, consistent UTC representation", () => {
+  assert.equal(
+    utils.formatDateTime("2026-10-26T04:09:00.000Z"),
+    "4:09am UTC, 26 Oct 2026",
+  );
+  assert.equal(utils.formatDateTime("invalid"), "—");
+});

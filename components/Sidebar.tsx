@@ -24,7 +24,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
           width={160}
           height={50}
           className="hidden h-auto lg:block"
-          style={{ width: 'auto', height: 'auto' }}
+          style={{ width: "auto", height: "auto" }}
         />
 
         <Image
@@ -39,7 +39,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
       <nav className="sidebar-nav">
         <ul className="flex flex-1 flex-col gap-6">
           {navItems.map(({ url, name, icon }) => (
-            <Link key={name} href={url} className="lg:w-full">
+            <Link key={name} href={url} aria-label={name} className="lg:w-full">
               <li
                 className={cn(
                   "sidebar-nav-item",
@@ -48,7 +48,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
               >
                 <Image
                   src={icon}
-                  alt={name}
+                  alt=""
                   width={24}
                   height={24}
                   className={cn(
@@ -70,7 +70,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
         height={418}
         className="w-full"
         loading="eager"
-        style={{ width: '100%', height: 'auto' }}
+        style={{ width: "100%", height: "auto" }}
       />
 
       <div className="sidebar-user-info">

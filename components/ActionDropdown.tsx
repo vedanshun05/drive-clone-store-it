@@ -184,6 +184,8 @@ const ActionDropdown = ({
                 key={actionItem.value}
                 className="shad-dropdown-item"
                 onClick={() => {
+                  setName(file.name);
+                  setEmails(file.users);
                   setAction(actionItem);
 
                   if (
@@ -203,7 +205,7 @@ const ActionDropdown = ({
                   >
                     <Image
                       src={actionItem.icon}
-                      alt={actionItem.label}
+                      alt=""
                       width={30}
                       height={30}
                     />
@@ -213,7 +215,7 @@ const ActionDropdown = ({
                   <div className="flex items-center gap-2">
                     <Image
                       src={actionItem.icon}
-                      alt={actionItem.label}
+                      alt=""
                       width={30}
                       height={30}
                     />

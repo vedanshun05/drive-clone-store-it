@@ -80,6 +80,7 @@ const MobileNavigation = ({
                   <Link
                     key={name}
                     href={url}
+                    aria-label={name}
                     onClick={() => setOpen(false)}
                     className="lg:w-full"
                   >
@@ -91,7 +92,7 @@ const MobileNavigation = ({
                     >
                       <Image
                         src={icon}
-                        alt={name}
+                        alt=""
                         width={24}
                         height={24}
                         className={cn(

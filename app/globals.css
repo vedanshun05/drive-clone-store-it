@@ -403,7 +403,7 @@
 }
 
 @utility file-card {
-  @apply flex! cursor-pointer! flex-col! gap-6! rounded-[18px]! bg-white! p-5! shadow-sm! transition-all! hover:shadow-drop-3!;
+  @apply flex! flex-col! gap-6! rounded-[18px]! bg-white! p-5! shadow-sm! transition-all! hover:shadow-drop-3!;
 }
 @utility file-card-details {
   @apply flex! flex-col! gap-2! text-light-100!;
