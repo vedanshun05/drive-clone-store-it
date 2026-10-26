@@ -25,6 +25,7 @@ export const Thumbnail = ({
         alt="thumbnail"
         width={100}
         height={100}
+        unoptimized={isImage && url.startsWith("/api/files/")}
         className={cn(
           "size-8 object-contain",
           // For real image previews let `thumbnail-image` (size-full/object-cover)

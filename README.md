@@ -17,13 +17,42 @@ npm run dev
 
 Open http://localhost:3000. Sign up and verify the email code to access the dashboard.
 
-The Appwrite project needs a database, a users table (`fullName`, `email`,
-`avatar`, `accountId`), a files table (`type`, `name`, `url`, `extension`,
-`size`, `owner`, `accountId`, `users`, `bucketFileId`), and a storage bucket.
-`owner` is a relationship to the users table and `users` is an email string array.
-Create the indexes required by Appwrite for the file filters and sort columns.
-The server API key needs account/session, row read/write, and file read/write access.
-Keep `NEXT_APPWRITE_SECRET_KEY` server-side; never prefix it with `NEXT_PUBLIC_`.
+## Appwrite backend setup
+
+Create an Appwrite project in the console, then put its API endpoint, project ID,
+and a setup API key in `.env.local`. Keep the resource IDs from `.env.example`
+unless you need different names. List the exact setup and runtime key scopes with:
+
+```bash
+npm run backend:setup -- --scopes
+```
+
+Create the database, users/files tables, owner relationship, query indexes, and
+private storage bucket:
+
+```bash
+npm run backend:setup -- --apply
+npm run backend:setup
+```
+
+The first command creates missing resources and waits for schema jobs to finish.
+It is safe to rerun after an interrupted setup. The second command checks the
+schema and app query shapes without creating anything. Neither creates user
+accounts or uploads files. Incompatible existing permissions/schema cause an
+error rather than being silently changed.
+
+For separate keys, place the temporary provisioning key in `APPWRITE_SETUP_KEY`
+in `.env.local`. The setup script prefers that key; keep it out of Vercel.
+After setup, use a server key with only `sessions.write`, `rows.read`, `rows.write`,
+`files.read`, and `files.write` in `NEXT_APPWRITE_SECRET_KEY`. The broader setup key
+is only needed for provisioning. Keep keys server-side; never prefix them with
+`NEXT_PUBLIC_` or commit `.env.local`.
+
+Tables and the bucket have no direct client permissions. File links use
+`/api/files/[fileId]`, which checks the signed-in owner or shared email before
+reading storage. Revoking a share takes effect on subsequent requests. HTML and
+SVG files download as attachments; private image previews bypass Next.js image
+optimization so requests carry the browser's session cookie.
 
 ## Verification
 
