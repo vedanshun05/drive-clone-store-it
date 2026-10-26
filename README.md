@@ -14,8 +14,6 @@ A full-stack file-storage application with email OTP authentication, private fil
 
 **[Open the live app](https://storeit.vedanshu.dev)** · **[Setup](#run-locally)** · **[Architecture](#architecture)** · **[Verification](#verification)**
 
-Built by [Vedanshu Nishad](https://github.com/vedanshun05).
-
 </div>
 
 ## Overview
