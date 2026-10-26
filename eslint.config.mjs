@@ -24,6 +24,12 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "no-undef": "off",
+      "better-tailwindcss/no-unknown-classes": [
+        "error",
+        {
+          ignore: ["^cn-font-heading$", "^cn-input-otp$", "^toaster$"],
+        },
+      ],
     },
   },
   prettier,

@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { Client, Account, TablesDB, Storage, Avatars } from "node-appwrite";
 import { cookies } from "next/headers";
@@ -26,14 +26,15 @@ export const createSessionClient = async () => {
 };
 
 export const createAdminClient = async () => {
-  if (!appwriteConfig.secretKey) {
+  const secretKey = process.env.NEXT_APPWRITE_SECRET_KEY;
+  if (!secretKey) {
     throw new Error("Missing NEXT_APPWRITE_SECRET_KEY env var");
   }
 
   const client = new Client()
     .setEndpoint(appwriteConfig.endpointUrl)
     .setProject(appwriteConfig.projectId)
-    .setKey(appwriteConfig.secretKey);
+    .setKey(secretKey);
 
   return {
     get account() {

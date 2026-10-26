@@ -30,6 +30,7 @@ import {
 import { usePathname } from "next/navigation";
 import { FileDetails } from "@/components/ActionsModalContent";
 import { ShareInput } from "@/components/ShareInput";
+import { toast } from "sonner";
 
 const ActionDropdown = ({ file }: { file: AppwriteFile }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +38,7 @@ const ActionDropdown = ({ file }: { file: AppwriteFile }) => {
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
-  const [emails, setEmails] = useState<string[]>([]);
+  const [emails, setEmails] = useState<string[]>(file.users);
 
   const path = usePathname();
 
@@ -46,13 +47,12 @@ const ActionDropdown = ({ file }: { file: AppwriteFile }) => {
     setIsDropdownOpen(false);
     setAction(null);
     setName(file.name);
-    //   setEmails([]);
+    setEmails(file.users);
   };
 
   const handleAction = async () => {
     if (!action) return;
     setIsLoading(true);
-    let success = false;
 
     const actions = {
       rename: () =>
@@ -62,24 +62,31 @@ const ActionDropdown = ({ file }: { file: AppwriteFile }) => {
         deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
     };
 
-    success = await actions[action.value as keyof typeof actions]();
-
-    if (success) closeAllModals();
-
-    setIsLoading(false);
+    try {
+      const success = await actions[action.value as keyof typeof actions]();
+      if (success) closeAllModals();
+    } catch {
+      toast.error("Unable to update the file. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRemoveUser = async (email: string) => {
-    const updatedEmails = emails.filter((e) => e !== email);
-
-    const success = await updateFileUsers({
-      fileId: file.$id,
-      emails: updatedEmails,
-      path,
-    });
-
-    if (success) setEmails(updatedEmails);
-    closeAllModals();
+    setIsLoading(true);
+    try {
+      const updatedEmails = file.users.filter((e) => e !== email);
+      const success = await updateFileUsers({
+        fileId: file.$id,
+        emails: updatedEmails,
+        path,
+      });
+      if (success) closeAllModals();
+    } catch {
+      toast.error("Unable to remove this person. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderDialogContent = () => {
@@ -121,7 +128,11 @@ const ActionDropdown = ({ file }: { file: AppwriteFile }) => {
             <Button onClick={closeAllModals} className="modal-cancel-button">
               Cancel
             </Button>
-            <Button onClick={handleAction} className="modal-submit-button">
+            <Button
+              onClick={handleAction}
+              disabled={isLoading}
+              className="modal-submit-button"
+            >
               <p className="capitalize">{value}</p>
               {isLoading && (
                 <Image

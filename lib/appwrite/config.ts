@@ -14,7 +14,7 @@ if (
   !bucketId
 ) {
   throw new Error(
-    "Missing one or more required NEXT_PUBLIC_APPWRITE_* env vars (ENDPOINT, PROJECT_ID, DATABASE_ID, USERS_TABLE_ID, FILES_TABLE_ID, BUCKET_ID)"
+    "Missing one or more required NEXT_PUBLIC_APPWRITE_* env vars (ENDPOINT, PROJECT_ID, DATABASE_ID, USERS_TABLE_ID, FILES_TABLE_ID, BUCKET_ID)",
   );
 }
 
@@ -25,5 +25,4 @@ export const appwriteConfig = {
   usersTableId,
   filesTableId,
   bucketId,
-  secretKey: process.env.NEXT_APPWRITE_SECRET_KEY,
 };

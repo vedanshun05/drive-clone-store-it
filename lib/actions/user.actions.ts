@@ -7,6 +7,10 @@ import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
+import { z } from "zod";
+
+const normalizeEmail = (email: string) =>
+  z.email().parse(email.trim().toLowerCase());
 
 const getUserByEmail = async (email: string) => {
   const { tablesDB } = await createAdminClient();
@@ -26,6 +30,7 @@ const handleError = (error: unknown, message: string) => {
 };
 
 export const sendEmailOTP = async ({ email }: { email: string }) => {
+  email = normalizeEmail(email);
   const { account } = await createAdminClient();
 
   try {
@@ -47,6 +52,8 @@ export const createAccount = async ({
   fullName: string;
   email: string;
 }) => {
+  email = normalizeEmail(email);
+  fullName = z.string().trim().min(2).max(50).parse(fullName);
   const existingUser = await getUserByEmail(email);
 
   const accountId = await sendEmailOTP({ email });
@@ -78,6 +85,10 @@ export const verifySecret = async ({
   accountId: string;
   password: string;
 }) => {
+  z.string().min(1).parse(accountId);
+  z.string()
+    .regex(/^\d{6}$/)
+    .parse(password);
   try {
     const { account } = await createAdminClient();
 
@@ -90,7 +101,8 @@ export const verifySecret = async ({
       path: "/",
       httpOnly: true,
       sameSite: "strict",
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(session.expire),
     });
 
     return parseStringify({ sessionId: session.$id });
@@ -100,10 +112,13 @@ export const verifySecret = async ({
 };
 
 export const getCurrentUser = async () => {
+  if (!(await cookies()).get("appwrite-session")?.value) return null;
+
   try {
-    const { tablesDB, account } = await createSessionClient();
+    const { account } = await createSessionClient();
 
     const result = await account.get();
+    const { tablesDB } = await createAdminClient();
 
     const user = await tablesDB.listRows({
       databaseId: appwriteConfig.databaseId,
@@ -115,31 +130,32 @@ export const getCurrentUser = async () => {
 
     return parseStringify(user.rows[0]);
   } catch (error) {
-    console.log(error);
+    if ((error as { code?: number }).code === 401) return null;
+    throw error;
   }
 };
 
 export const signOutUser = async () => {
-  const { account } = await createSessionClient();
-
   try {
+    const { account } = await createSessionClient();
     await account.deleteSession({ sessionId: "current" });
-    (await cookies()).delete("appwrite-session");
   } catch (error) {
-    handleError(error, "Failed to sign out user");
+    console.error("Failed to revoke session", error);
   } finally {
+    (await cookies()).delete("appwrite-session");
     redirect("/sign-in");
   }
 };
 
 export const signInUser = async ({ email }: { email: string }) => {
+  email = normalizeEmail(email);
   try {
     const existingUser = await getUserByEmail(email);
 
     // User exists, send OTP
     if (existingUser) {
-      await sendEmailOTP({ email });
-      return parseStringify({ accountId: existingUser.accountId });
+      const accountId = await sendEmailOTP({ email });
+      return parseStringify({ accountId });
     }
 
     return parseStringify({ accountId: null, error: "User not found" });

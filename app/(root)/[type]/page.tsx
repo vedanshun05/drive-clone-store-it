@@ -2,11 +2,20 @@ import Card from "@/components/Card";
 import Sort from "@/components/Sort";
 import { getFiles } from "@/lib/actions/file.actions";
 import { getFileTypesParams, convertFileSize } from "@/lib/utils";
+import { notFound, redirect } from "next/navigation";
+import { sortTypes } from "@/constants";
+import { getCurrentUser } from "@/lib/actions/user.actions";
 
 const Page = async ({ params, searchParams }: SearchParamProps) => {
+  if (!(await getCurrentUser())) redirect("/sign-in");
   const type = ((await params)?.type as string) || "";
-  const searchText = ((await searchParams)?.query as string) || "";
-  const sort = ((await searchParams)?.sort as string) || "";
+  if (!["documents", "images", "media", "others"].includes(type)) notFound();
+  const queryParams = await searchParams;
+  const searchText =
+    typeof queryParams?.query === "string" ? queryParams.query : "";
+  const sort =
+    sortTypes.find((option) => option.value === queryParams?.sort)?.value ||
+    sortTypes[0].value;
 
   const types = getFileTypesParams(type) as FileType[];
   const files = await getFiles({ types, searchText, sort });

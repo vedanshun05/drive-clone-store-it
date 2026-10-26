@@ -24,36 +24,64 @@ import { useRouter } from "next/navigation";
 const OtpModal = ({
   accountId,
   email,
+  onClose,
 }: {
   accountId: string;
   email: string;
+  onClose: () => void;
 }) => {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(true);
+  const [currentAccountId, setCurrentAccountId] = useState(accountId);
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage("");
 
     try {
-      const sessionId = await verifySecret({ accountId, password });
+      const sessionId = await verifySecret({
+        accountId: currentAccountId,
+        password,
+      });
 
-      if (sessionId) router.push("/");
-    } catch (error) {
-      console.log("Failed to verify OTP", error);
+      if (sessionId) {
+        router.push("/");
+        router.refresh();
+      }
+    } catch {
+      setErrorMessage(
+        "Invalid or expired code. Please try again or resend it.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleResendOtp = async () => {
-    await sendEmailOTP({ email });
+    setIsLoading(true);
+    setErrorMessage("");
+    try {
+      const nextAccountId = await sendEmailOTP({ email });
+      if (!nextAccountId) throw new Error("Unable to resend code");
+      setCurrentAccountId(nextAccountId);
+      setPassword("");
+    } catch {
+      setErrorMessage("Unable to resend the code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+    <AlertDialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <AlertDialogContent className="shad-alert-dialog">
         <AlertDialogHeader className="relative flex justify-center">
           <AlertDialogTitle className="h2 text-center">
@@ -63,7 +91,7 @@ const OtpModal = ({
               alt="close"
               width={20}
               height={20}
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className="otp-close-button"
             />
           </AlertDialogTitle>
@@ -83,6 +111,11 @@ const OtpModal = ({
             <InputOTPSlot index={5} className="shad-otp-slot" />
           </InputOTPGroup>
         </InputOTP>
+        {errorMessage && (
+          <p role="alert" className="error-message">
+            {errorMessage}
+          </p>
+        )}
 
         <AlertDialogFooter>
           <div className="flex w-full flex-col gap-4">
@@ -90,6 +123,7 @@ const OtpModal = ({
               onClick={handleSubmit}
               className="shad-submit-btn h-12"
               type="button"
+              disabled={isLoading || password.length !== 6}
             >
               Submit
               {isLoading && (
@@ -110,6 +144,7 @@ const OtpModal = ({
                 variant="link"
                 className="pl-1 text-brand"
                 onClick={handleResendOtp}
+                disabled={isLoading}
               >
                 Click to resend
               </Button>

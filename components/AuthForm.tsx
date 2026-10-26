@@ -35,7 +35,7 @@ const authFormSchema = (formType: FormType) => {
 const AuthForm = ({ type }: { type: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [accountId, setAccountId] = useState(null);
+  const [accountId, setAccountId] = useState<string | null>(null);
 
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -59,9 +59,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
             })
           : await signInUser({ email: values.email });
 
-      setAccountId(user.accountId);
+      if (user.error) {
+        setErrorMessage(user.error);
+      } else {
+        setAccountId(user.accountId);
+      }
     } catch {
-      setErrorMessage("Failed to create account. Please try again.");
+      setErrorMessage("Unable to send a sign-in code. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +162,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
       </Form>
 
       {accountId && (
-        <OtpModal email={form.getValues("email")} accountId={accountId} />
+        <OtpModal
+          email={form.getValues("email")}
+          accountId={accountId}
+          onClose={() => setAccountId(null)}
+        />
       )}
     </>
   );

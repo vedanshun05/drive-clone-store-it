@@ -8,11 +8,12 @@ import Thumbnail from "@/components/Thumbnail";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebounce } from "use-debounce";
+import { toast } from "sonner";
 
 const Search = () => {
-  const [query, setQuery] = useState("");
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("query") || "";
+  const [query, setQuery] = useState(searchQuery);
   const [results, setResults] = useState<AppwriteFile[]>([]);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -20,19 +21,37 @@ const Search = () => {
   const [debouncedQuery] = useDebounce(query, 300);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchFiles = async () => {
       if (debouncedQuery.length === 0) {
         setResults([]);
         setOpen(false);
-        return router.push(path.replace(searchParams.toString(), ""));
+        return;
       }
 
-      const files = await getFiles({ types: [], searchText: debouncedQuery });
-      setResults(files.rows);
-      setOpen(true);
+      try {
+        const files = await getFiles({
+          types: [],
+          searchText: debouncedQuery,
+          limit: 10,
+        });
+        if (!cancelled) {
+          setResults(files.rows);
+          setOpen(true);
+        }
+      } catch {
+        if (!cancelled) {
+          setResults([]);
+          setOpen(false);
+          toast.error("Unable to search files. Please try again.");
+        }
+      }
     };
 
     fetchFiles();
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedQuery]);
 
   // Clear the input when the URL `?query` param is removed (e.g. navigation).
@@ -41,15 +60,16 @@ const Search = () => {
   const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
   if (searchQuery !== prevSearchQuery) {
     setPrevSearchQuery(searchQuery);
-    if (!searchQuery) setQuery("");
+    setQuery(searchQuery);
   }
 
   const handleClickItem = (file: AppwriteFile) => {
     setOpen(false);
     setResults([]);
 
+    const params = new URLSearchParams({ query });
     router.push(
-      `/${file.type === "video" || file.type === "audio" ? "media" : file.type + "s"}?query=${query}`,
+      `/${file.type === "video" || file.type === "audio" ? "media" : file.type + "s"}?${params}`,
     );
   };
 
@@ -66,7 +86,14 @@ const Search = () => {
           value={query}
           placeholder="Search..."
           className="search-input"
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            if (!e.target.value && searchQuery) {
+              const params = new URLSearchParams(searchParams.toString());
+              params.delete("query");
+              router.replace(params.size ? `${path}?${params}` : path);
+            }
+          }}
         />
 
         {open && (

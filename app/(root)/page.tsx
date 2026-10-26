@@ -8,8 +8,12 @@ import FormattedDateTime from "@/components/FormattedDateTime";
 import Thumbnail from "@/components/Thumbnail";
 import ActionDropdown from "@/components/ActionDropdown";
 import { Separator } from "@/components/ui/separator";
+import { getCurrentUser } from "@/lib/actions/user.actions";
+import { redirect } from "next/navigation";
 
 const Dashboard = async () => {
+  // Pages and layouts render in parallel; protect data loading here as well.
+  if (!(await getCurrentUser())) redirect("/sign-in");
   // Parallel requests
   const [files, totalSpace] = await Promise.all([
     getFiles({ types: [], limit: 10 }),

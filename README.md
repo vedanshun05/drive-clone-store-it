@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StoreIt
 
-## Getting Started
+A file storage dashboard built with Next.js 16, React 19, and Appwrite TablesDB.
 
-First, run the development server:
+**Live app: [storeit.vedanshu.dev](https://storeit.vedanshu.dev)**
+
+## Local setup
+
+Use Node.js 22 or newer and npm:
 
 ```bash
+npm ci
+cp .env.example .env.local
+# Fill in the Appwrite values in .env.local.
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Sign up and verify the email code to access the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The Appwrite project needs a database, a users table (`fullName`, `email`,
+`avatar`, `accountId`), a files table (`type`, `name`, `url`, `extension`,
+`size`, `owner`, `accountId`, `users`, `bucketFileId`), and a storage bucket.
+`owner` is a relationship to the users table and `users` is an email string array.
+Create the indexes required by Appwrite for the file filters and sort columns.
+The server API key needs account/session, row read/write, and file read/write access.
+Keep `NEXT_APPWRITE_SECRET_KEY` server-side; never prefix it with `NEXT_PUBLIC_`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Verification
 
-## Learn More
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+The build downloads Google Fonts and needs network access. Tests mock Appwrite and
+do not modify production accounts or files.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Vercel deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Import this repository as a **Next.js** project, with `master` as the production
+branch, the repository root as the root directory, `npm run build` as the build
+command, and the default Next.js output directory. Add every variable from
+`.env.example` in the Vercel environment settings before deploying.
 
-## Deploy on Vercel
+This app needs a Node.js runtime for Appwrite and Server Actions. It cannot be
+deployed as a static export or a directory of static assets.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Use https://storeit.vedanshu.dev as the public URL. The old repository homepage,
+`https://drive-clone-store-it.vercel.app`, returned Vercel's
+`DEPLOYMENT_NOT_FOUND` on inspection. This is a missing hosting alias, before
+Next.js routing runs. To restore that URL, add it to this project's domains in
+Vercel and assign it to the current production deployment. A successful production
+health check is `/` redirecting to `/sign-in`, with `/sign-in` and `/sign-up`
+returning HTTP 200.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Uploads currently pass through Server Actions and are limited to **4 MB per
+file**, leaving room beneath Vercel's 4.5 MB request limit. Increasing
+`serverActions.bodySizeLimit` cannot increase Vercel's platform limit. Supporting
+larger files requires a direct-to-storage upload flow.

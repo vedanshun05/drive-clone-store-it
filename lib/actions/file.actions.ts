@@ -1,24 +1,67 @@
 "use server";
 
-import { createAdminClient, createSessionClient } from "@/lib/appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { InputFile } from "node-appwrite/file";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { ID, Models, Query } from "node-appwrite";
 import { constructFileUrl, getFileType, parseStringify } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
+import { MAX_FILE_SIZE, sortTypes } from "@/constants";
+import { z } from "zod";
+
+const requireUser = async () => {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("User is not authenticated.");
+  return user;
+};
+
+const getOwnedFile = async (fileId: string) => {
+  const user = await requireUser();
+  const { tablesDB } = await createAdminClient();
+  const file = await tablesDB.getRow({
+    databaseId: appwriteConfig.databaseId,
+    tableId: appwriteConfig.filesTableId,
+    rowId: fileId,
+  });
+  const ownerId = typeof file.owner === "string" ? file.owner : file.owner?.$id;
+  if (ownerId !== user.$id) throw new Error("You do not own this file.");
+  return file;
+};
+
+// Appwrite defaults to 25 rows. Walk every page for listings and usage totals.
+const listAllFiles = async (queries: string[]) => {
+  const { tablesDB } = await createAdminClient();
+  type FileRow = Models.Row & Pick<AppwriteFile, "type" | "size">;
+  const rows: FileRow[] = [];
+  let cursor: string | undefined;
+  let page;
+  do {
+    page = await tablesDB.listRows<FileRow>({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.filesTableId,
+      queries: [
+        ...queries,
+        Query.limit(100),
+        ...(cursor ? [Query.cursorAfter(cursor)] : []),
+      ],
+    });
+    rows.push(...page.rows);
+    cursor = page.rows.at(-1)?.$id;
+  } while (page.rows.length === 100);
+  return { total: rows.length, rows };
+};
 
 const handleError = (error: unknown, message: string) => {
   console.log(error, message);
   throw error;
 };
 
-export const uploadFile = async ({
-  file,
-  ownerId,
-  accountId,
-  path,
-}: UploadFileProps) => {
+export const uploadFile = async ({ file, path }: UploadFileProps) => {
+  const currentUser = await requireUser();
+  if (!(file instanceof File) || file.size === 0 || file.size > MAX_FILE_SIZE) {
+    throw new Error("Choose a non-empty file up to 4 MB.");
+  }
   const { storage, tablesDB } = await createAdminClient();
 
   try {
@@ -31,11 +74,11 @@ export const uploadFile = async ({
     let bucketFile: Models.File | undefined;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        bucketFile = await storage.createFile(
-          appwriteConfig.bucketId,
-          ID.unique(),
-          InputFile.fromBuffer(buffer, file.name),
-        );
+        bucketFile = await storage.createFile({
+          bucketId: appwriteConfig.bucketId,
+          fileId: ID.unique(),
+          file: InputFile.fromBuffer(buffer, file.name),
+        });
         break;
       } catch (error) {
         const code = (error as { code?: number }).code;
@@ -52,8 +95,8 @@ export const uploadFile = async ({
       url: constructFileUrl(bucketFile.$id),
       extension: getFileType(bucketFile.name).extension,
       size: bucketFile.sizeOriginal,
-      owner: ownerId,
-      accountId,
+      owner: currentUser.$id,
+      accountId: currentUser.accountId,
       users: [],
       bucketFileId: bucketFile.$id,
     };
@@ -66,7 +109,10 @@ export const uploadFile = async ({
         data: fileDocument,
       })
       .catch(async (error: unknown) => {
-        await storage.deleteFile(appwriteConfig.bucketId, bucketFile.$id);
+        await storage.deleteFile({
+          bucketId: appwriteConfig.bucketId,
+          fileId: bucketFile.$id,
+        });
         handleError(error, "Failed to create file document");
       });
 
@@ -99,6 +145,9 @@ const createQueries = (
   if (limit) queries.push(Query.limit(limit));
 
   if (sort) {
+    if (!sortTypes.some((option) => option.value === sort)) {
+      throw new Error("Invalid sort order.");
+    }
     const [sortBy, orderBy] = sort.split("-");
     queries.push(
       orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy),
@@ -122,6 +171,8 @@ export const getFiles = async ({
 
     const queries = createQueries(currentUser, types, searchText, sort, limit);
 
+    if (!limit) return parseStringify(await listAllFiles(queries));
+
     const files = await tablesDB.listRows({
       databaseId: appwriteConfig.databaseId,
       tableId: appwriteConfig.filesTableId,
@@ -134,16 +185,17 @@ export const getFiles = async ({
   }
 };
 
-export const renameFile = async ({
-  fileId,
-  name,
-  extension,
-  path,
-}: RenameFileProps) => {
+export const renameFile = async ({ fileId, name, path }: RenameFileProps) => {
+  const file = await getOwnedFile(fileId);
   const { tablesDB } = await createAdminClient();
 
   try {
-    const newName = `${name}.${extension}`;
+    const requestedName = z.string().trim().min(1).max(255).parse(name);
+    const suffix = file.extension ? `.${file.extension}` : "";
+    const newName =
+      suffix && !requestedName.toLowerCase().endsWith(suffix.toLowerCase())
+        ? `${requestedName}${suffix}`
+        : requestedName;
     const updatedFile = await tablesDB.updateRow({
       databaseId: appwriteConfig.databaseId,
       tableId: appwriteConfig.filesTableId,
@@ -163,6 +215,13 @@ export const updateFileUsers = async ({
   emails,
   path,
 }: UpdateFileUsersProps) => {
+  await getOwnedFile(fileId);
+  const normalizedEmails = [
+    ...new Set(
+      emails.map((email) => email.trim().toLowerCase()).filter(Boolean),
+    ),
+  ];
+  z.array(z.email()).max(100).parse(normalizedEmails);
   const { tablesDB } = await createAdminClient();
 
   try {
@@ -170,7 +229,7 @@ export const updateFileUsers = async ({
       databaseId: appwriteConfig.databaseId,
       tableId: appwriteConfig.filesTableId,
       rowId: fileId,
-      data: { users: emails },
+      data: { users: normalizedEmails },
     });
 
     revalidatePath(path);
@@ -180,21 +239,25 @@ export const updateFileUsers = async ({
   }
 };
 
-export const deleteFile = async ({
-  fileId,
-  bucketFileId,
-  path,
-}: DeleteFileProps) => {
+export const deleteFile = async ({ fileId, path }: DeleteFileProps) => {
+  const file = await getOwnedFile(fileId);
   const { storage, tablesDB } = await createAdminClient();
 
   try {
+    // Keep metadata when a storage deletion fails so the user can retry.
+    try {
+      await storage.deleteFile({
+        bucketId: appwriteConfig.bucketId,
+        fileId: file.bucketFileId,
+      });
+    } catch (error) {
+      if ((error as { code?: number }).code !== 404) throw error;
+    }
     await tablesDB.deleteRow({
       databaseId: appwriteConfig.databaseId,
       tableId: appwriteConfig.filesTableId,
       rowId: fileId,
     });
-
-    await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
 
     revalidatePath(path);
     return parseStringify({ status: "success" });
@@ -205,15 +268,13 @@ export const deleteFile = async ({
 
 export async function getTotalSpaceUsed() {
   try {
-    const { tablesDB } = await createSessionClient();
-    const currentUser = await getCurrentUser();
-    if (!currentUser) throw new Error("User is not authenticated.");
+    const currentUser = await requireUser();
 
-    const files = await tablesDB.listRows({
-      databaseId: appwriteConfig.databaseId,
-      tableId: appwriteConfig.filesTableId,
-      queries: [Query.equal("owner", [currentUser.$id])],
-    });
+    const files = await listAllFiles([
+      Query.equal("owner", [currentUser.$id]),
+      Query.orderAsc("$id"),
+      Query.select(["$id", "type", "size", "$updatedAt"]),
+    ]);
 
     const totalSpace = {
       image: { size: 0, latestDate: "" },
